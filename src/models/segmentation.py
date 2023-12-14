@@ -5,10 +5,7 @@ import math
 from torchvision import models
 import pytorch_lightning as pl
 import torch.optim as optim
-
-from ..metricsHardSegmentation import BinaryMetrics
-
-
+from src.metrics import SegmentationMetrics
 
 
 class FcnSegmentationNet(LightningModule):
@@ -50,7 +47,7 @@ class FcnSegmentationNet(LightningModule):
 
         loss = self.loss(outputs, masks)
         self.log('test_loss', loss)
-        compute_met = BinaryMetrics()
+        compute_met = SegmentationMetrics()
         met = compute_met(masks, outputs) # met is a list
         #return loss, met
         self.log_dict({'test_loss': loss, 'test_acc': met[0], 'test_dice': met[1], 'test_precision': met[2], 'test_specificity': met[3], 'test_recall': met[4], 'jaccard': met[5]})
@@ -127,7 +124,7 @@ class DeeplabSegmentationNet(pl.LightningModule):
 
         loss = self.criterion(outputs, masks)
         self.log('test_loss', loss)
-        compute_met = BinaryMetrics()
+        compute_met = SegmentationMetrics()
         met = compute_met(masks, outputs) # met is a list
         #return loss, met
         self.log_dict({'test_loss': loss, 'test_acc': met[0], 'test_dice': met[1], 'test_precision': met[2], 'test_specificity': met[3], 'test_recall': met[4], 'jaccard': met[5]})
