@@ -1,0 +1,42 @@
+
+# models and weights here: https://pytorch.org/vision/stable/models.html
+load_model: shufflenet_v2_x1_0
+
+# ResNet50_Weights.IMAGENET1K_V2 epoch:[71] version:[1] lr:[0.00008]
+# GoogLeNet_Weights.IMAGENET1K_V1 52 epoch:[52] version:[2] lr:[0.00008]
+# ViT_B_16_Weights.IMAGENET1K_SWAG_LINEAR_V1 epoch:[87] version:[5] lr:[0.00008]
+# EfficientNet_B3_Weights.IMAGENET1K_V1 epoch:[78] version:[6] lr:[0.00008]
+# DenseNet161_Weights.IMAGENET1K_V1 epoch:[48] version:[7] lr:[0.00008]
+# Swin_T_Weights.IMAGENET1K_V1 epoch:[40, 39,12,26,33,40, 49,40] version:[8,20,21,22,23,27,29] lr:[0.00008, 0.00003, 0.0008,0.00005, 0.00004]
+# VGG13_BN_Weights.IMAGENET1K_V1 epoch:[44] version:[9] lr:[0.00008]
+# RegNet_Y_1_6GF_Weights.IMAGENET1K_V2 epoch:[93] version:[10] lr:[0.00008]
+# MobileNet_V3_Large_Weights.IMAGENET1K_V2 epoch:[96] version:[11] lr:[0.00008]
+# MaxVit_T_Weights.IMAGENET1K_V1 epoch:[44, ?, ?, 53] version:[12, 18, 19, 25] lr:[0.00008, 0.00003, 0.0008, 0.00005]
+# ConvNeXt_Tiny_Weights.IMAGENET1K_V1 epoch:[31, ?, ?, 39, 91, 74] version:[13, 14, 15, 16, 17, 24] lr:[0.00008, 0.0001, 0.0001, 0.00003, 0.000008, 0.00001],
+
+model:
+  num_classes: 3
+  name: resnet50
+  weights: ResNet50_Weights.IMAGENET1K_V2
+
+
+dataset:
+  train: ./data/train.json
+  val: ./data/val.json
+  test: ./data/test.json
+  resize: 224
+
+train:
+  save_path: "./models/"
+  seed: -1
+  batch_size: 64
+  lr: 0.00004
+  accelerator: "gpu"
+  devices: 1
+  max_epochs: 1
+
+
+log:  
+  path: "./logs/"
+  wandb: False
+  tensorboard: True
