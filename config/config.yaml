@@ -21,10 +21,12 @@ train:
   seed: -1
   batch_size: 64
   lr: 0.00004
-  accelerator: "gpu"
+  accelerator: "cpu"
   devices: 1
   max_epochs: 1
 
+saliency:
+    method: "None"
 
 log:  
   path: "./logs/"

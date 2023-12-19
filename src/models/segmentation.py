@@ -4,6 +4,8 @@ import torch.nn as nn
 import math
 from torchvision import models
 import pytorch_lightning as pl
+from pytorch_lightning import LightningModule
+
 import torch.optim as optim
 from src.metrics import SegmentationMetrics
 

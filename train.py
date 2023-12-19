@@ -1,14 +1,18 @@
-import os
 import hydra
-import torch
 import pytorch_lightning
-from sklearn.metrics import classification_report
-import numpy as np
 
 from src.models.classification import *
-from src.data.datamodule import *
-from src.log import LossLogCallback, get_loggers
+from src.data.classification.datamodule import *
+
+from src.models.masked_classification import *
+from src.data.masked_classification.datamodule import *
+
+from src.models.segmentation import *
+from src.data.segmentation.datamodule import *
+
+from src.log import LossLogCallback, get_loggers, HydraTimestampRunCallback
 from src.utils import *
+from test import predict
 
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
@@ -23,6 +27,7 @@ def main(cfg):
     callbacks = list()
     callbacks.append(get_early_stopping(cfg))
     callbacks.append(LossLogCallback())
+    callbacks.append(HydraTimestampRunCallback())
     loggers = get_loggers(cfg)
 
     model, data = get_model_and_data(cfg)
@@ -37,6 +42,9 @@ def main(cfg):
         max_epochs=cfg.train.max_epochs
     )
     trainer.fit(model, data)
+
+    # prediction
+    predict(trainer, model, data, cfg.saliency.method, cfg.classification_mode)
 
 
 
@@ -54,17 +62,17 @@ def get_model_and_data(cfg):
     model, data = None, None
     train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
 
-    # CLASSIFICATION
+    # CLASSIFICATION WHOLE
     if cfg.task == 'c' or cfg.task == 'classification':
-        # classification model
-        model = OralClassifierModule(
-            model=cfg.model.name,
-            weights=cfg.model.weights,
-            num_classes=cfg.model.num_classes,
-            lr=cfg.train.lr,
-            max_epochs = cfg.train.max_epochs
-        )
-        if cfg.classification_mode=='whole'
+        if cfg.classification_mode=='whole':
+            # classification model
+            model = OralClassifierModule(
+                model=cfg.model.name,
+                weights=cfg.model.weights,
+                num_classes=cfg.model.num_classes,
+                lr=cfg.train.lr,
+                max_epochs = cfg.train.max_epochs
+            )
             # whole data
             data = OralClassificationDataModule(
                 train=cfg.dataset.train,
@@ -76,16 +84,50 @@ def get_model_and_data(cfg):
                 test_transform = test_img_tranform,
                 transform = img_tranform,
             )
-        elif cfg.classification_mode=='masked':
+
+        # CLASSIFICATION MASKED
+        elif cfg.classification_mode == 'masked':
+            # classification model
+            model = OralMaskedClassifierModule(
+                model=cfg.model.name,
+                weights=cfg.model.weights,
+                num_classes=cfg.model.num_classes,
+                lr=cfg.train.lr,
+                # max_epochs = cfg.train.max_epochs
+            )
             # masked data
-            data = None
+            data = OralClassificationMaskedDataModule(
+                train=cfg.dataset.test,
+                #train=cfg.dataset.train,
+                val=cfg.dataset.val,
+                test=cfg.dataset.test,
+                batch_size=cfg.train.batch_size,
+                train_transform=train_img_tranform,
+                val_transform=val_img_tranform,
+                test_transform=test_img_tranform,
+                transform=img_tranform,
+            )
+
 
     # SEGMENTATION
     elif cfg.task == 's' or cfg.task == 'segmentation':
         model = None
-        data = None
+        data = OralSegmentationDataModule(
+            train=cfg.dataset.train,
+            val=cfg.dataset.val,
+            test=cfg.dataset.test,
+            batch_size=cfg.train.batch_size,
+            train_transform=train_img_tranform,
+            val_transform=val_img_tranform,
+            test_transform=test_img_tranform,
+            transform=img_tranform
+        )
 
     return model, data
+
+
+
+
 
 
 
