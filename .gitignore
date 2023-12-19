@@ -123,6 +123,7 @@ cython_debug/
 __init__.py
 checkpoints/
 data/
+!/src/data/
 logs/
 outputs/
 lightning_logs/

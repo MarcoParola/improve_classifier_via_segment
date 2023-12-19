@@ -33,7 +33,6 @@ class OralMaskedClassifierModule(LightningModule):
     def forward(self, x):
         torch.set_grad_enabled(True)
 
-
         output = self.model(x)
         return output
 
@@ -88,18 +87,17 @@ class OralMaskedClassifierModule(LightningModule):
         print("Numbers greater than 0.5: ", count_elements_gt_05)
         print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
-
-    def get_salient_area(self, imgs, predictions, stage):
+    def get_salient_area(self, imgs, labels, stage):
 
         target_layers = [self.model.features[-1][-1]]
         cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
-        predictions = torch.argmax(predictions, dim=1)
+        labels = torch.argmax(labels, dim=1)
         result = []
         print("len(imgs) = ", len(imgs))
 
         for index, image in enumerate(imgs):
-            prediction = predictions[index]
-            target = [ClassifierOutputTarget(prediction)]
+            label = labels[index]
+            target = [ClassifierOutputTarget(label)]
             grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=target)
             grayscale_cam = grayscale_cam[0, :]
             grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
@@ -108,14 +106,9 @@ class OralMaskedClassifierModule(LightningModule):
             if stage == "val":
                 self.print_map_stats(grayscale_cam)
 
-
             _, grayscale_cam = cv2.threshold(grayscale_cam, 0.5, 1, cv2.THRESH_BINARY)
 
-
-
-
             result.append(grayscale_cam)
-
 
         result = torch.tensor(result)
         print(result.shape)
@@ -128,7 +121,7 @@ class OralMaskedClassifierModule(LightningModule):
         x = self.preprocess(img)
         print("len(x) = ", len(x))
         y_hat = self(x)
-        salient_area = self.get_salient_area(x, y_hat, stage)
+        salient_area = self.get_salient_area(x, label, stage)
 
         loss = self.loss(label, y_hat, salient_area, mask)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
