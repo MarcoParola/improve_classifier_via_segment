@@ -6,6 +6,12 @@ from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from sklearn.metrics import accuracy_score
 import cv2
 import numpy as np
+from pytorch_grad_cam.utils.image import show_cam_on_image
+from PIL import Image
+import matplotlib.pyplot as plt
+
+import os
+import hydra
 
 from src.saliency_aware_loss import SaliencyAwareLoss
 
@@ -44,7 +50,6 @@ class OralMaskedClassifierModule(LightningModule):
 
     def validation_step(self, batch, batch_idx):
         torch.set_grad_enabled(True)
-
         self._common_step(batch, batch_idx, "val")
 
     def test_step(self, batch, batch_idx):
@@ -87,11 +92,11 @@ class OralMaskedClassifierModule(LightningModule):
         print("Numbers greater than 0.5: ", count_elements_gt_05)
         print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
-    def get_salient_area(self, imgs, labels, stage):
+    def get_salient_area(self, imgs, labels, stage, batch_index):
 
         target_layers = [self.model.features[-1][-1]]
         cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
-        labels = torch.argmax(labels, dim=1)
+        #labels = torch.argmax(labels, dim=1)
         result = []
         print("len(imgs) = ", len(imgs))
 
@@ -103,8 +108,15 @@ class OralMaskedClassifierModule(LightningModule):
             grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
 
             # monnezza
-            if stage == "val":
-                self.print_map_stats(grayscale_cam)
+            if stage == "val" and index < 10 and batch_index == 0:
+                image_for_plot = image.permute(1, 2, 0).numpy()
+                fig, ax = plt.subplots()
+                ax.imshow(image_for_plot)
+                ax.imshow((grayscale_cam*255).astype('uint8'), cmap='jet', alpha=0.75)  # Overlay saliency map
+                os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps',
+                            exist_ok=True)
+                plt.savefig(os.path.join(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.jpg'), bbox_inches='tight')
+                plt.close()
 
             _, grayscale_cam = cv2.threshold(grayscale_cam, 0.5, 1, cv2.THRESH_BINARY)
 
@@ -121,9 +133,14 @@ class OralMaskedClassifierModule(LightningModule):
         x = self.preprocess(img)
         print("len(x) = ", len(x))
         y_hat = self(x)
-        salient_area = self.get_salient_area(x, label, stage)
+        salient_area = self.get_salient_area(x, label, stage, batch_idx)
 
-        loss = self.loss(label, y_hat, salient_area, mask)
+        # monnezza
+        current_epoch = self.current_epoch
+
+        # passare current_epoch e stage è solo per provare
+
+        loss = self.loss(label, y_hat, salient_area, mask, current_epoch, stage)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
         loss = torch.tensor(loss, dtype=torch.float32)
         loss.requires_grad_(True)
