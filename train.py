@@ -67,7 +67,6 @@ def get_model_and_data(cfg):
         if cfg.classification_mode=='whole':
             # classification model
             model = OralClassifierModule(
-                model=cfg.model.name,
                 weights=cfg.model.weights,
                 num_classes=cfg.model.num_classes,
                 lr=cfg.train.lr,
@@ -89,7 +88,6 @@ def get_model_and_data(cfg):
         elif cfg.classification_mode == 'masked':
             # classification model
             model = OralMaskedClassifierModule(
-                model=cfg.model.name,
                 weights=cfg.model.weights,
                 num_classes=cfg.model.num_classes,
                 lr=cfg.train.lr,

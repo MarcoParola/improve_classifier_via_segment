@@ -11,12 +11,13 @@ import os
 
 class OralClassifierModule(LightningModule):
 
-    def __init__(self, model, weights, num_classes, lr=10e-3, max_epochs = 100):
+    def __init__(self, weights, num_classes, lr=10e-3, max_epochs = 100):
         super().__init__()
         self.save_hyperparameters()
         assert "." in weights, "Weights must be <MODEL>.<WEIGHTS>"
         weights_cls = weights.split(".")[0]
         weights_name = weights.split(".")[1]
+        model = weights.split("_Weights")[0].lower()
         
         weights_cls = getattr(torchvision.models, weights_cls)
         weights = getattr(weights_cls, weights_name)

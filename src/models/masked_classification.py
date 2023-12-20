@@ -18,12 +18,13 @@ from src.saliency_aware_loss import SaliencyAwareLoss
 
 class OralMaskedClassifierModule(LightningModule):
 
-    def __init__(self, model, weights, num_classes, lr=10e-3, max_epochs=100):
+    def __init__(self, weights, num_classes, lr=10e-3, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
         assert "." in weights, "Weights must be <MODEL>.<WEIGHTS>"
         weights_cls = weights.split(".")[0]
         weights_name = weights.split(".")[1]
+        model = weights.split("_Weights")[0].lower()
 
         weights_cls = getattr(torchvision.models, weights_cls)
         weights = getattr(weights_cls, weights_name)
@@ -94,11 +95,12 @@ class OralMaskedClassifierModule(LightningModule):
 
     def get_salient_area(self, imgs, labels, stage, batch_index):
 
+
+        # for convnext
         target_layers = [self.model.features[-1][-1]]
         cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
         #labels = torch.argmax(labels, dim=1)
         result = []
-        print("len(imgs) = ", len(imgs))
 
         for index, image in enumerate(imgs):
             label = labels[index]
@@ -123,15 +125,12 @@ class OralMaskedClassifierModule(LightningModule):
             result.append(grayscale_cam)
 
         result = torch.tensor(result)
-        print(result.shape)
         return result
 
     def _common_step(self, batch, batch_idx, stage):
         torch.set_grad_enabled(True)
-        print("len(batch) = ", len(batch))
         img, label, mask = batch
         x = self.preprocess(img)
-        print("len(x) = ", len(x))
         y_hat = self(x)
         salient_area = self.get_salient_area(x, label, stage, batch_idx)
 
