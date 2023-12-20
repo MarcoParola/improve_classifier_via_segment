@@ -24,12 +24,12 @@ class OralMaskedClassifierModule(LightningModule):
         assert "." in weights, "Weights must be <MODEL>.<WEIGHTS>"
         weights_cls = weights.split(".")[0]
         weights_name = weights.split(".")[1]
-        model = weights.split("_Weights")[0].lower()
+        self.model_name = weights.split("_Weights")[0].lower()
 
         weights_cls = getattr(torchvision.models, weights_cls)
         weights = getattr(weights_cls, weights_name)
 
-        self.model = getattr(torchvision.models, model)(weights=weights)
+        self.model = getattr(torchvision.models, self.model_name)(weights=weights)
 
         self._set_model_classifier(weights_cls, num_classes)
 
@@ -95,9 +95,20 @@ class OralMaskedClassifierModule(LightningModule):
 
     def get_salient_area(self, imgs, labels, stage, batch_index):
 
+        if "vit" in self.model_name:
+            target_layers = [self.model.conv_proj]
+        elif "convnext" in self.model_name:
+            target_layers = [self.model.features[-1][-1]]
 
-        # for convnext
-        target_layers = [self.model.features[-1][-1]]
+        # swin è da cercare meglio il target layer
+        elif "swin" in self.model_name:
+            target_layers = [self.model.features[0][0]]
+
+        # squeezenet da errore sulla log_confusion matrix
+        elif "squeezenet" in self.model_name:
+            target_layers = [self.model.features[-1]]
+
+
         cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
         #labels = torch.argmax(labels, dim=1)
         result = []
@@ -109,7 +120,6 @@ class OralMaskedClassifierModule(LightningModule):
             grayscale_cam = grayscale_cam[0, :]
             grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
 
-            # monnezza
             if stage == "val" and index < 10 and batch_index == 0:
                 image_for_plot = image.permute(1, 2, 0).numpy()
                 fig, ax = plt.subplots()
@@ -215,8 +225,8 @@ class OralMaskedClassifierModule(LightningModule):
                 torch.nn.Dropout(0.5),
                 torch.nn.Linear(64, num_classes)
             )
-        elif "SqueezeNet1_1" in weights_cls:
-            self.model.heads = torch.nn.Sequential(
+        elif "SqueezeNet1_1" in weights_cls or "SqueezeNet1_0" in weights_cls:
+            self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
                 torch.nn.Linear(6, 64),
                 torch.nn.ReLU(),
