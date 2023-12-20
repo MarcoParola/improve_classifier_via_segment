@@ -1,7 +1,13 @@
 import torch
 import torchvision
+from pytorch_grad_cam import GradCAM, HiResCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad
+import cv2
+from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_lightning import LightningModule
-
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+import hydra
+import os
 
 class OralClassifierModule(LightningModule):
 
@@ -23,21 +29,31 @@ class OralClassifierModule(LightningModule):
         self.loss = torch.nn.CrossEntropyLoss()
 
     def forward(self, x):
+        torch.set_grad_enabled(True)
+
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
+        torch.set_grad_enabled(True)
+
         return self._common_step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
+        torch.set_grad_enabled(True)
+
         self._common_step(batch, batch_idx, "val") 
         
     def test_step(self, batch, batch_idx):
+        torch.set_grad_enabled(True)
+
         self._common_step(batch, batch_idx, "test")
         output = self(batch)
         accuracy = accuracy_score(output, batch['target'])
         self.log('test_accuracy', accuracy)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
+        torch.set_grad_enabled(True)
+
         img, label = batch
         x = self.preprocess(img)
         return self(x)
@@ -55,11 +71,35 @@ class OralClassifierModule(LightningModule):
         return [optimizer], [lr_scheduler_config]
 
     def _common_step(self, batch, batch_idx, stage):
-        img, label = batch
-        x = self.preprocess(img)
+        torch.set_grad_enabled(True)
+
+        imgs, labels = batch
+        x = self.preprocess(imgs)
         y_hat = self(x)
-        loss = self.loss(y_hat, label)
+        loss = self.loss(y_hat, labels)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
+
+        if stage == "val" and batch_idx == 0:
+            target_layers = [self.model.features[-1][-1]]
+            cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
+            for index, image in enumerate(imgs[0:10]):
+                label = labels[index]
+                target = [ClassifierOutputTarget(label)]
+                grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=target)
+                grayscale_cam = grayscale_cam[0, :]
+                grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
+                image_for_plot = image.permute(1, 2, 0).numpy()
+                fig, ax = plt.subplots()
+                ax.imshow(image_for_plot)
+                ax.imshow((grayscale_cam * 255).astype('uint8'), cmap='jet', alpha=0.75)  # Overlay saliency map
+                os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps',
+                            exist_ok=True)
+                plt.savefig(os.path.join(
+                    f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.jpg'),
+                            bbox_inches='tight')
+                plt.close()
+
+
         return loss
 
     def _set_model_classifier(self, weights_cls, num_classes): 
