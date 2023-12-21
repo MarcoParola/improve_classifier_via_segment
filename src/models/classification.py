@@ -89,8 +89,6 @@ class OralClassifierModule(LightningModule):
                 # swin è da cercare meglio il target layer
             elif "swin" in self.model_name:
                 target_layers = [self.model.features[0][0]]
-
-            # squeezenet da errore sulla log_confusion_matrix
             elif "squeezenet" in self.model_name:
                 target_layers = [self.model.features[-1]]
 
@@ -187,10 +185,9 @@ class OralClassifierModule(LightningModule):
         elif "SqueezeNet1_1" in weights_cls or "SqueezeNet1_0" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
                 torch.nn.Dropout(0.5),
-                torch.nn.Linear(6, 64),
+                torch.nn.Conv2d(512, num_classes, kernel_size=(1, 1), stride=(1, 1)),
                 torch.nn.ReLU(),
-                torch.nn.Dropout(0.5),
-                torch.nn.Linear(64, num_classes)
+                torch.nn.AvgPool2d(kernel_size=13, stride=1, padding=0)
             )
 
 
