@@ -1,6 +1,8 @@
 import pytorch_lightning as pl
 from torch.utils.tensorboard import SummaryWriter
 from src.utils import *
+import hydra
+import os
 
 
 class LossLogCallback(pl.Callback):
@@ -22,6 +24,14 @@ class LossLogCallback(pl.Callback):
                                                   'val': self.val_losses[i]}, i)
         writer.close()
 
+    # monnezza
+    def on_validation_epoch_start(self, trainer, pl_module):
+        print(" ")
+        print(" ")
+        print("Starting new validation epoch:")
+
+
+
 
 class HydraTimestampRunCallback(pl.Callback):
 
@@ -31,8 +41,8 @@ class HydraTimestampRunCallback(pl.Callback):
         log_dir = 'logs/oral/' + get_last_version('logs/oral')
         hydra_current_timestamp = f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}'
         # decompose in day and time
-        day = hydra_current_timestamp.split("\\")[-2]
-        time = hydra_current_timestamp.split("\\")[-1]
+        day = hydra_current_timestamp.split(os.sep)[-2]
+        time = hydra_current_timestamp.split(os.sep)[-1]
         f = open(log_dir + "/hydra_run_timestamp.txt", "w+")
         # in this way is saved just day and time not all the absolute path
         f.write(day + '/' + time)

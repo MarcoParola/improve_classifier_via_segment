@@ -64,3 +64,5 @@ def calculate_intersection_over_salient_region(salient_area, ground_truth_mask):
     iosr = np.sum(intersection) / salient_pixels
 
     return iosr
+
+
