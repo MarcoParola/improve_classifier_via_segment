@@ -1,12 +1,12 @@
 import os
 import hydra
 import torch
-import pytorch_lightning
+import pytorch_lightning as pl
 from sklearn.metrics import classification_report
 import numpy as np
 
 from src.models.classification import *
-from src.data.datamodule import *
+from src.data.datamodule import * # TODO: change this
 from src.log import LossLogCallback, get_loggers
 from src.utils import *
 
@@ -28,7 +28,7 @@ def main(cfg):
     model, data = get_model_and_data(cfg)
 
     # training
-    trainer = pytorch_lightning.Trainer(
+    trainer = pl.Trainer(
         logger=loggers,
         callbacks=callbacks,
         accelerator=cfg.train.accelerator,
