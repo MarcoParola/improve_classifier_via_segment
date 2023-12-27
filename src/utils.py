@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, precision_score, f1_score
 from sklearn.utils.multiclass import unique_labels
 from torch.utils.tensorboard import SummaryWriter
+from torchvision.transforms.v2 import AutoAugmentPolicy, functional as F, InterpolationMode, Transform
 
 
 def get_early_stopping(cfg):
@@ -35,15 +36,12 @@ def get_transformations(cfg):
     ])
     val_img_tranform, test_img_tranform = None, None
 
+
     train_img_tranform = torchvision.transforms.Compose([
         torchvision.transforms.Resize(cfg.dataset.resize, antialias=True),
         torchvision.transforms.CenterCrop(cfg.dataset.resize),
         torchvision.transforms.ToTensor(),
-        torchvision.transforms.RandomHorizontalFlip(p=0.5),
-        torchvision.transforms.RandomVerticalFlip(p=0.5),
-        torchvision.transforms.RandomRotation(degrees=45),
-        #torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
-        torchvision.transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), scale=(0.8, 1.2), shear=0),
+        torchvision.transforms.RandomAffine(degrees=45, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
     ])
     return train_img_tranform, val_img_tranform, test_img_tranform, img_tranform
     
