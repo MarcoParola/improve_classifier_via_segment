@@ -34,7 +34,6 @@ def predict(trainer, model, data, saliency_map_flag, task, classification_mode):
         elif classification_mode == 'whole':
             gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
 
-
         print(classification_report(gt, predictions))
 
         class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
@@ -45,8 +44,7 @@ def predict(trainer, model, data, saliency_map_flag, task, classification_mode):
             OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions, classification_mode)
 
     elif task == 's' or task == 'segmentation':
-        print("ciao")
-        # TODO: aggiungere una forma di evaluation dei risultati della segmentazione
+        trainer.test(model, data)
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):

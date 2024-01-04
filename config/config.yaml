@@ -28,6 +28,9 @@ train:
 
 generate_map: "None"
 
+checkpoint:
+  version: 0
+
 log:  
   path: "./logs/"
   wandb: False
