@@ -9,6 +9,7 @@ model:
   name: resnet50
   weights: ResNet50_Weights.IMAGENET1K_V2
 
+model_seg: 'fcn'
 
 dataset:
   train: ./data/train.json
@@ -25,8 +26,7 @@ train:
   devices: 1
   max_epochs: 1
 
-saliency:
-    method: "None"
+generate_map: "None"
 
 log:  
   path: "./logs/"

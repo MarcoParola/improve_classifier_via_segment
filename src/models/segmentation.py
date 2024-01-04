@@ -14,18 +14,19 @@ class FcnSegmentationNet(LightningModule):
     '''
     This class implements a Fully Convolutional Network for segmentation.
     '''
-    def __init__(self, num_classes, lr=5e-7, epochs=1000, len_dataset=0, batch_size=0, loss=nn.BCEWithLogitsLoss(), sgm_type="hard", sgm_threshold=0.5):
+    def __init__(self, num_classes=1, lr=5e-7, epochs=1000, len_dataset=0, batch_size=0, loss=nn.BCEWithLogitsLoss(), sgm_type="hard", sgm_threshold=0.5):
         super(FcnSegmentationNet, self).__init__()
         self.pretrained_model = models.segmentation.fcn_resnet50(pretrained=True)
         #sostituendo il quinto strato del classificatore del modello preaddestrato con un nuovo strato di convoluzione 
         #che trasformerà le 512 feature maps in un numero di canali uguale a num_classes.
         self.pretrained_model.classifier[4] = nn.Conv2d(512, num_classes, kernel_size=(1, 1), stride=(1, 1))
+
         self.lr = lr
         self.loss = loss
-        self.sgm_type=sgm_type
-        self.sgm_threshold= sgm_threshold
-        self.epochs=epochs
-        self.len_dataset= len_dataset
+        self.sgm_type = sgm_type
+        self.sgm_threshold = sgm_threshold
+        self.epochs = epochs
+        self.len_dataset = len_dataset
         self.batch_size = batch_size
 
     def forward(self, x):
@@ -78,7 +79,7 @@ class DeeplabSegmentationNet(pl.LightningModule):
     '''
     This class implements a DeepLabV3 model for segmentation.
     '''
-    def __init__(self, num_classes, lr=5e-7, epochs=1000, len_dataset=0, batch_size=0, loss=nn.BCEWithLogitsLoss(), pretrained=True, sgm_type="hard", sgm_threshold=0.5):
+    def __init__(self, num_classes=1, lr=5e-7, epochs=1000, len_dataset=0, batch_size=0, loss=nn.BCEWithLogitsLoss(), pretrained=True, sgm_type="hard", sgm_threshold=0.5):
         super().__init__()
         self.save_hyperparameters()
         self.model = models.segmentation.deeplabv3_resnet50(pretrained=pretrained)
@@ -88,11 +89,11 @@ class DeeplabSegmentationNet(pl.LightningModule):
         self.model.classifier[4] = torch.nn.Conv2d(256, num_classes, kernel_size=(1, 1), stride=(1, 1)) # TODO fai check sul valore 256
         self.num_classes = num_classes
         self.criterion = loss
-        self.lr=lr
-        self.sgm_type=sgm_type
-        self.sgm_threshold= sgm_threshold
-        self.epochs=epochs
-        self.len_dataset= len_dataset
+        self.lr = lr
+        self.sgm_type = sgm_type
+        self.sgm_threshold = sgm_threshold
+        self.epochs = epochs
+        self.len_dataset = len_dataset
         self.batch_size = batch_size
 
     #To run data through your model only. Called with output = model(input_data)
@@ -139,6 +140,6 @@ class DeeplabSegmentationNet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        sch = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr = 0.01, epochs=self.epochs, steps_per_epoch = int(math.ceil(self.len_dataset / self.batch_size)))
+        sch = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, epochs=self.epochs, steps_per_epoch=int(math.ceil(self.len_dataset / self.batch_size)))
         return [optimizer], [sch]
          

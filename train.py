@@ -4,9 +4,14 @@ import pytorch_lightning as pl
 from sklearn.metrics import classification_report
 import numpy as np
 
+from src.data.classification.datamodule import OralClassificationDataModule
+from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
+from src.data.segmentation.datamodule import OralSegmentationDataModule
 from src.models.classification import *
-from src.data.datamodule import * # TODO: change this
-from src.log import LossLogCallback, get_loggers
+#from src.data.datamodule import * # TODO: change this
+from src.log import LossLogCallback, get_loggers, HydraTimestampRunCallback
+from src.models.masked_classification import OralMaskedClassifierModule
+from src.models.segmentation import FcnSegmentationNet, DeeplabSegmentationNet
 from src.utils import *
 from test import predict
 
@@ -40,7 +45,7 @@ def main(cfg):
     trainer.fit(model, data)
 
     # prediction
-    predict(trainer, model, data, cfg.saliency.method, cfg.classification_mode)
+    predict(trainer, model, data, cfg.generate_map, cfg.task, cfg.classification_mode)
 
 
 
@@ -91,6 +96,7 @@ def get_model_and_data(cfg):
             )
             # masked data
             data = OralClassificationMaskedDataModule(
+                # monnezza
                 train=cfg.dataset.test,
                 #train=cfg.dataset.train,
                 val=cfg.dataset.val,
@@ -102,10 +108,8 @@ def get_model_and_data(cfg):
                 transform=img_tranform,
             )
 
-
     # SEGMENTATION
     elif cfg.task == 's' or cfg.task == 'segmentation':
-        model = None
         data = OralSegmentationDataModule(
             train=cfg.dataset.train,
             val=cfg.dataset.val,
@@ -116,14 +120,14 @@ def get_model_and_data(cfg):
             test_transform=test_img_tranform,
             transform=img_tranform
         )
+        if cfg.model_seg == 'deeplab':
+            model = DeeplabSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
+                                           len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+        elif cfg.model_seg == 'fcn':
+            model = FcnSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
+                                       len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
 
     return model, data
-
-
-
-
-
-
 
 if __name__ == "__main__":
     main()

@@ -88,6 +88,7 @@ class OralMaskedClassifierModule(LightningModule):
         print("Minimum:", np.min(saliency_map))
         print("Average:", np.mean(saliency_map))
         print("Shape:", saliency_map.shape)
+        print("Type: ", type(saliency_map[0][0]))
         count_elements_gt_05 = 0
         count_elements_gt_05 = np.sum(saliency_map > 0.5)
         print("Numbers greater than 0.5: ", count_elements_gt_05)
@@ -99,13 +100,11 @@ class OralMaskedClassifierModule(LightningModule):
             target_layers = [self.model.conv_proj]
         elif "convnext" in self.model_name:
             target_layers = [self.model.features[-1][-1]]
-
         # swin è da cercare meglio il target layer
         elif "swin" in self.model_name:
             target_layers = [self.model.features[0][0]]
         elif "squeezenet" in self.model_name:
             target_layers = [self.model.features[-1]]
-
 
         cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
         #labels = torch.argmax(labels, dim=1)
@@ -128,7 +127,9 @@ class OralMaskedClassifierModule(LightningModule):
                 plt.savefig(os.path.join(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.jpg'), bbox_inches='tight')
                 plt.close()
 
+           # self.print_map_stats(grayscale_cam)
             _, grayscale_cam = cv2.threshold(grayscale_cam, 0.5, 1, cv2.THRESH_BINARY)
+           # self.print_map_stats(grayscale_cam)
 
             result.append(grayscale_cam)
 
@@ -145,6 +146,8 @@ class OralMaskedClassifierModule(LightningModule):
         # monnezza
         current_epoch = self.current_epoch
 
+        mask = np.array(mask).squeeze()
+        salient_area = np.array(salient_area).squeeze()
         # passare current_epoch e stage è solo per provare
 
         loss = self.loss(label, y_hat, salient_area, mask, current_epoch, stage)

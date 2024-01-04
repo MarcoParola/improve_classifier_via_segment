@@ -4,6 +4,7 @@ import omegaconf
 
 from sklearn.metrics import classification_report
 
+from src.data.segmentation.datamodule import OralSegmentationDataModule
 from src.models.classification import OralClassifierModule
 from src.models.masked_classification import OralMaskedClassifierModule
 
@@ -11,38 +12,41 @@ from src.data.classification.datamodule import OralClassificationDataModule
 from src.data.classification.dataset import OralClassificationDataset
 from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
 from src.data.masked_classification.dataset import OralClassificationMaskedDataset
+from src.models.segmentation import FcnSegmentationNet, DeeplabSegmentationNet
 from src.saliency.grad_cam import OralGradCam
 from src.saliency.lime import OralLime
 from src.saliency.shap import OralShap
+import hydra
 
 from src.utils import *
 from src.log import get_loggers
 
 
-def predict(trainer, model, data, saliency_map_flag, classification_mode):
-    predictions = trainer.predict(model, data)
-    predictions = torch.cat(predictions, dim=0)
-    predictions = torch.argmax(predictions, dim=1)
+def predict(trainer, model, data, saliency_map_flag, task, classification_mode):
 
-    if classification_mode == 'masked':
-        gt = torch.cat([y for _, y, _ in data.test_dataloader()], dim=0)
-    elif classification_mode == 'whole':
-        gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
+    if task == 'c' or task == 'classification':
+        predictions = trainer.predict(model, data)
+        predictions = torch.cat(predictions, dim=0)
+        predictions = torch.argmax(predictions, dim=1)
+
+        if classification_mode == 'masked':
+            gt = torch.cat([y for _, y, _ in data.test_dataloader()], dim=0)
+        elif classification_mode == 'whole':
+            gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
 
 
-    print(classification_report(gt, predictions))
+        print(classification_report(gt, predictions))
 
-    class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
-    log_dir = 'logs/oral/' + get_last_version('logs/oral')
-    log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
+        class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
+        log_dir = 'logs/oral/' + get_last_version('logs/oral')
+        log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
 
-    if saliency_map_flag == "grad-cam":
-        OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions)
-    elif saliency_map_flag == "shap":
-        OralShap.create_maps_shap(model, data.test_dataloader())
-    elif saliency_map_flag == "lime":
-        OralLime.create_maps_lime(model, data.test_dataloader(), predictions)
+        if saliency_map_flag == "grad-cam":
+            OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions, classification_mode)
 
+    elif task == 's' or task == 'segmentation':
+        print("ciao")
+        # TODO: aggiungere una forma di evaluation dei risultati della segmentazione
 
 @hydra.main(version_base=None, config_path="./config", config_name="config")
 def main(cfg):
@@ -51,7 +55,7 @@ def main(cfg):
     # save the passed version number before overwriting the configuration with training configuration
     version = str(cfg.checkpoint.version)
     # save the passed saliency map generation method before overwriting the configuration with training configuration
-    saliency_map_method = cfg.saliency.method
+    saliency_map_method = cfg.generate_map
     # find the hydra_run_timestamp.txt file
     f = open('./logs/oral/version_' + version + '/hydra_run_timestamp.txt', "r")
     # read the timestamp inside hydra_run_timestamp.txt
@@ -77,7 +81,6 @@ def main(cfg):
     model = None
     data = None
 
-    # QUI BISOGNA FARE LA RAMIFICAZIONE
     if cfg.task == 'c' or cfg.task == 'classification':
         # whole classification
         if cfg.classification_mode == 'whole':
@@ -100,7 +103,7 @@ def main(cfg):
             )
 
         # masked classification
-        if cfg.classification_mode == 'masked':
+        elif cfg.classification_mode == 'masked':
             model = OralMaskedClassifierModule.load_from_checkpoint(get_last_checkpoint(version))
             model.eval()
 
@@ -117,8 +120,27 @@ def main(cfg):
                 transform=img_tranform
             )
 
+    elif cfg.task == 's' or cfg.task == 'segmentation':
+        train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
+        data = OralSegmentationDataModule(
+            train=cfg.dataset.train,
+            val=cfg.dataset.val,
+            test=cfg.dataset.test,
+            batch_size=cfg.train.batch_size,
+            train_transform=train_img_tranform,
+            val_transform=val_img_tranform,
+            test_transform=test_img_tranform,
+            transform=img_tranform
+        )
+        if cfg.model_seg == 'fcn':
+            model = FcnSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
+                                       len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+        elif cfg.model_seg == 'deeplab':
+            model = DeeplabSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
+                                           len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+        model.eval()
 
-    predict(trainer, model, data, saliency_map_method, cfg.classification_mode)
+    predict(trainer, model, data, saliency_map_method, cfg.task, cfg.classification_mode)
 
 
 

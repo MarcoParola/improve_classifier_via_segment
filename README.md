@@ -74,14 +74,14 @@ Classification on masked dataset:
 - train CNN classifier on masked dataset
 - test CNN classifier on masked dataset
 
-Specify the pretraine segmentation model by setting `model_seg.weights`. `classification_mode=masked` is to specify we are solving the classification exploiting the segment information.
+Specify the pretrained segmentation model by setting `model_seg`. `classification_mode=masked` is to specify we are solving the classification exploiting the segment information.
 
 ```bash
 # TRAIN segmentation NN
-python train.py task=s model_seg.weights=...
+python train.py task=s model_seg=...
 
 # TEST segmentation NN
-python test.py task=s model_seg.weights=...
+python test.py task=s model_seg=...
 ```
 
 Specify the pretrained classification model by setting `model.weights`. Specify the segmentation model previoulsy trained for generate the masks by setting `model_seg.weights`.

@@ -29,10 +29,22 @@ class SaliencyAwareLoss(torch.nn.Module):
         cross_entropy_loss = F.cross_entropy(predicted_lbl, actual_lbl)
 
         # Calculate IoSR
-        iosr = calculate_intersection_over_salient_region(salient_area.numpy(), ground_truth_mask.numpy())
+        iosr = calculate_intersection_over_salient_region(salient_area, ground_truth_mask)
 
         # Combine the losses
         loss = self.weight_loss * cross_entropy_loss + (1 - self.weight_loss) * iosr
+
+        '''
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+        print("Stage: ", stage)
+        print("type(salient_area): ", type(salient_area), type(salient_area[0][0]))
+        print("type(ground_truth_mask): ", type(ground_truth_mask), ground_truth_mask.shape, type(ground_truth_mask[0][0]))
+        print("type(salient_area): ", type(salient_area.numpy()), salient_area.numpy().shape, type(salient_area[0][0]))
+        print("type(ground_truth_mask): ", type(ground_truth_mask.numpy()), ground_truth_mask.numpy().shape)
+        print("cross_entropy: ", cross_entropy_loss)
+        print("iosr: ", iosr)
+        print("loss: ", loss)
+        '''
 
         loss.requires_grad_(True)
 
