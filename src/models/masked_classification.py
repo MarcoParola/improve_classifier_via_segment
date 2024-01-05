@@ -143,14 +143,11 @@ class OralMaskedClassifierModule(LightningModule):
         y_hat = self(x)
         salient_area = self.get_salient_area(x, label, stage, batch_idx)
 
-        # monnezza
-        current_epoch = self.current_epoch
-
         mask = np.array(mask).squeeze()
         salient_area = np.array(salient_area).squeeze()
         # passare current_epoch e stage è solo per provare
 
-        loss = self.loss(label, y_hat, salient_area, mask, current_epoch, stage)
+        loss = self.loss(label, y_hat, salient_area, mask, self.current_epoch, stage)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
         loss = torch.tensor(loss, dtype=torch.float32)
         loss.requires_grad_(True)

@@ -131,11 +131,9 @@ def main(cfg):
             transform=img_tranform
         )
         if cfg.model_seg == 'fcn':
-            model = FcnSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
-                                       len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+            model = FcnSegmentationNet.load_from_checkpoint(get_last_checkpoint(version))
         elif cfg.model_seg == 'deeplab':
-            model = DeeplabSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
-                                           len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+            model = DeeplabSegmentationNet.load_from_checkpoint(get_last_checkpoint(version))
         model.eval()
 
     predict(trainer, model, data, saliency_map_method, cfg.task, cfg.classification_mode)

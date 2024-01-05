@@ -20,18 +20,11 @@ class LossLogCallback(pl.Callback):
         log_dir = 'logs/oral/' + get_last_version('logs/oral')
         writer = SummaryWriter(log_dir=log_dir)
         for i in range(0, len(self.train_losses)):
+            print("val_loss: ", self.val_losses[i])
+            print("train_loss: ", self.train_losses[i])
             writer.add_scalars('train_val_loss', {'train': self.train_losses[i],
                                                   'val': self.val_losses[i]}, i)
         writer.close()
-
-    # monnezza
-    def on_validation_epoch_start(self, trainer, pl_module):
-        print(" ")
-        print(" ")
-        print("Starting new validation epoch:")
-
-
-
 
 class HydraTimestampRunCallback(pl.Callback):
 

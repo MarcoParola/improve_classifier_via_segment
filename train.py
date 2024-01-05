@@ -96,9 +96,7 @@ def get_model_and_data(cfg):
             )
             # masked data
             data = OralClassificationMaskedDataModule(
-                # monnezza
-                train=cfg.dataset.test,
-                #train=cfg.dataset.train,
+                train=cfg.dataset.train,
                 val=cfg.dataset.val,
                 test=cfg.dataset.test,
                 batch_size=cfg.train.batch_size,

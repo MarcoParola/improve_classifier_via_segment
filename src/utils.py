@@ -43,6 +43,8 @@ def get_transformations(cfg):
         torchvision.transforms.ToTensor(),
         torchvision.transforms.RandomAffine(degrees=45, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
     ])
+
+
     return train_img_tranform, val_img_tranform, test_img_tranform, img_tranform
     
 

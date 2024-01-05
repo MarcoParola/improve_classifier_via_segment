@@ -54,7 +54,9 @@ class OralSegmentationDataset(torch.utils.data.Dataset):
 
         # scale and repeat mask on all channels
         mask = mask / mask.max()
+
         image = self.fill_black(image)
+
         return image, mask
 
 
@@ -79,13 +81,12 @@ def main(cfg):
 
     torch.manual_seed(42)
     train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
-    print(train_img_tranform)
-
     train_dataset = OralSegmentationDataset(cfg.dataset.train, transform=train_img_tranform)
-    for i in range(20):
+    for i in range(2):
+
         img, mask = train_dataset.__getitem__(i)
         plt.imshow(img.permute(1, 2, 0))
-        plt.imshow(mask.permute(1,2,0) , alpha=.4, cmap='gray')
+        plt.imshow(mask.permute(1, 2, 0), alpha=.4, cmap='gray')
         plt.show()
 
 if __name__ == '__main__':
