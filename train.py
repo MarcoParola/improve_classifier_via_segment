@@ -5,12 +5,12 @@ from sklearn.metrics import classification_report
 import numpy as np
 
 from src.data.classification.datamodule import OralClassificationDataModule
-from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
+from src.data.saliency_classification.datamodule import OralClassificationSaliencyDataModule
 from src.data.segmentation.datamodule import OralSegmentationDataModule
 from src.models.classification import *
 #from src.data.datamodule import * # TODO: change this
 from src.log import LossLogCallback, get_loggers, HydraTimestampRunCallback
-from src.models.masked_classification import OralMaskedClassifierModule
+from src.models.saliency_classification import OralSaliencyClassifierModule
 from src.models.segmentation import FcnSegmentationNet, DeeplabSegmentationNet
 from src.utils import *
 from test import predict
@@ -85,17 +85,17 @@ def get_model_and_data(cfg):
                 transform = img_tranform,
             )
 
-        # CLASSIFICATION MASKED
-        elif cfg.classification_mode == 'masked':
+        # CLASSIFICATION SALIENCY
+        elif cfg.classification_mode == 'saliency':
             # classification model
-            model = OralMaskedClassifierModule(
+            model = OralSaliencyClassifierModule(
                 weights=cfg.model.weights,
                 num_classes=cfg.model.num_classes,
                 lr=cfg.train.lr,
                 # max_epochs = cfg.train.max_epochs
             )
-            # masked data
-            data = OralClassificationMaskedDataModule(
+            # data
+            data = OralClassificationSaliencyDataModule(
                 train=cfg.dataset.train,
                 val=cfg.dataset.val,
                 test=cfg.dataset.test,

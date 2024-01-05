@@ -5,7 +5,7 @@ import json
 from matplotlib import pyplot as plt
 from PIL import Image, ImageDraw
 
-from src.data.masked_classification.dataset import OralClassificationMaskedDataset
+from src.data.saliency_classification.dataset import OralClassificationSaliencyDataset
 
 
 class OralClassificationDataset(torch.utils.data.Dataset):
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     plt.savefig("not_cropped_test.png")
     #torchvision.utils.save_image(dataset[1][0], "test.png")
     '''
-    dataset = OralClassificationMaskedDataset(
+    dataset = OralClassificationSaliencyDataset(
         "data/train.json", False,
         transform=transforms.Compose([
             transforms.Resize((512, 512), antialias=True),

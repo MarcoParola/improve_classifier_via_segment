@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 import os
 import hydra
 
-from src.saliency_aware_loss import SaliencyAwareLoss
+from src.losses import SaliencyAwareLoss
 
 
-class OralMaskedClassifierModule(LightningModule):
+class OralSaliencyClassifierModule(LightningModule):
 
     def __init__(self, weights, num_classes, lr=10e-3, max_epochs=100):
         super().__init__()

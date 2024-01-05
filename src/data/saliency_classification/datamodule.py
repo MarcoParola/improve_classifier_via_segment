@@ -3,10 +3,10 @@ import hydra
 from torch.utils.data import DataLoader
 from pytorch_lightning import LightningDataModule
 
-from src.data.masked_classification.dataset import OralClassificationMaskedDataset
+from src.data.saliency_classification.dataset import OralClassificationSaliencyDataset
 
 
-class OralClassificationMaskedDataModule(LightningDataModule):
+class OralClassificationSaliencyDataModule(LightningDataModule):
     def __init__(self, train, val, test, batch_size=32, train_transform=None, val_transform=None,
                  test_transform=None, transform=None):
         super().__init__()
@@ -17,9 +17,9 @@ class OralClassificationMaskedDataModule(LightningDataModule):
         if val_transform is None:
             val_transform = transform
 
-        self.train_dataset = OralClassificationMaskedDataset(train, transform=train_transform)
-        self.val_dataset = OralClassificationMaskedDataset(val, transform=val_transform)
-        self.test_dataset = OralClassificationMaskedDataset(test, transform=test_transform)
+        self.train_dataset = OralClassificationSaliencyDataset(train, transform=train_transform)
+        self.val_dataset = OralClassificationSaliencyDataset(val, transform=val_transform)
+        self.test_dataset = OralClassificationSaliencyDataset(test, transform=test_transform)
         self.batch_size = batch_size
 
     def train_dataloader(self):

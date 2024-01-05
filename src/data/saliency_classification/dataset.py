@@ -4,7 +4,7 @@ import json
 from PIL import Image, ImageDraw
 
 
-class OralClassificationMaskedDataset(torch.utils.data.Dataset):
+class OralClassificationSaliencyDataset(torch.utils.data.Dataset):
     def __init__(self, annonations, transform=None):
         self.annonations = annonations
         self.transform = transform

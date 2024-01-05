@@ -6,12 +6,12 @@ from sklearn.metrics import classification_report
 
 from src.data.segmentation.datamodule import OralSegmentationDataModule
 from src.models.classification import OralClassifierModule
-from src.models.masked_classification import OralMaskedClassifierModule
+from src.models.saliency_classification import OralSaliencyClassifierModule
 
 from src.data.classification.datamodule import OralClassificationDataModule
 from src.data.classification.dataset import OralClassificationDataset
-from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
-from src.data.masked_classification.dataset import OralClassificationMaskedDataset
+from src.data.saliency_classification.datamodule import OralClassificationSaliencyDataModule
+from src.data.saliency_classification.dataset import OralClassificationSaliencyDataset
 from src.models.segmentation import FcnSegmentationNet, DeeplabSegmentationNet
 from src.saliency.grad_cam import OralGradCam
 from src.saliency.lime import OralLime
@@ -29,7 +29,7 @@ def predict(trainer, model, data, saliency_map_flag, task, classification_mode):
         predictions = torch.cat(predictions, dim=0)
         predictions = torch.argmax(predictions, dim=1)
 
-        if classification_mode == 'masked':
+        if classification_mode == 'saliency':
             gt = torch.cat([y for _, y, _ in data.test_dataloader()], dim=0)
         elif classification_mode == 'whole':
             gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
@@ -100,14 +100,13 @@ def main(cfg):
                 transform=img_tranform
             )
 
-        # masked classification
-        elif cfg.classification_mode == 'masked':
-            model = OralMaskedClassifierModule.load_from_checkpoint(get_last_checkpoint(version))
+        elif cfg.classification_mode == 'saliency':
+            model = OralSaliencyClassifierModule.load_from_checkpoint(get_last_checkpoint(version))
             model.eval()
 
             # data
             train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
-            data = OralClassificationMaskedDataModule(
+            data = OralClassificationSaliencyDataModule(
                 train=cfg.dataset.train,
                 val=cfg.dataset.val,
                 test=cfg.dataset.test,
