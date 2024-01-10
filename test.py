@@ -4,6 +4,7 @@ import omegaconf
 
 from sklearn.metrics import classification_report
 
+from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
 from src.data.segmentation.datamodule import OralSegmentationDataModule
 from src.models.classification import OralClassifierModule
 from src.models.saliency_classification import OralSaliencyClassifierModule
@@ -31,7 +32,7 @@ def predict(trainer, model, data, saliency_map_flag, task, classification_mode):
 
         if classification_mode == 'saliency':
             gt = torch.cat([y for _, y, _ in data.test_dataloader()], dim=0)
-        elif classification_mode == 'whole':
+        elif classification_mode == 'whole' or classification_mode == 'masked':
             gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
 
         print(classification_report(gt, predictions))
@@ -107,6 +108,23 @@ def main(cfg):
             # data
             train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
             data = OralClassificationSaliencyDataModule(
+                train=cfg.dataset.train,
+                val=cfg.dataset.val,
+                test=cfg.dataset.test,
+                batch_size=cfg.train.batch_size,
+                train_transform=train_img_tranform,
+                val_transform=val_img_tranform,
+                test_transform=test_img_tranform,
+                transform=img_tranform
+            )
+
+        elif cfg.classification_mode == 'masked':
+            model = OralClassifierModule.load_from_checkpoint(get_last_checkpoint(version))
+            model.eval()
+
+            train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
+            data = OralClassificationMaskedDataModule(
+                segmenter=cfg.model_seg,
                 train=cfg.dataset.train,
                 val=cfg.dataset.val,
                 test=cfg.dataset.test,

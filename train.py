@@ -5,10 +5,10 @@ from sklearn.metrics import classification_report
 import numpy as np
 
 from src.data.classification.datamodule import OralClassificationDataModule
+from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
 from src.data.saliency_classification.datamodule import OralClassificationSaliencyDataModule
 from src.data.segmentation.datamodule import OralSegmentationDataModule
 from src.models.classification import *
-#from src.data.datamodule import * # TODO: change this
 from src.log import LossLogCallback, get_loggers, HydraTimestampRunCallback
 from src.models.saliency_classification import OralSaliencyClassifierModule
 from src.models.segmentation import FcnSegmentationNet, DeeplabSegmentationNet
@@ -65,7 +65,7 @@ def get_model_and_data(cfg):
 
     # CLASSIFICATION WHOLE
     if cfg.task == 'c' or cfg.task == 'classification':
-        if cfg.classification_mode=='whole':
+        if cfg.classification_mode =='whole':
             # classification model
             model = OralClassifierModule(
                 weights=cfg.model.weights,
@@ -79,10 +79,10 @@ def get_model_and_data(cfg):
                 val=cfg.dataset.val,
                 test=cfg.dataset.test,
                 batch_size=cfg.train.batch_size,
-                train_transform = train_img_tranform,
-                val_transform = val_img_tranform,
-                test_transform = test_img_tranform,
-                transform = img_tranform,
+                train_transform=train_img_tranform,
+                val_transform=val_img_tranform,
+                test_transform=test_img_tranform,
+                transform=img_tranform,
             )
 
         # CLASSIFICATION SALIENCY
@@ -92,10 +92,33 @@ def get_model_and_data(cfg):
                 weights=cfg.model.weights,
                 num_classes=cfg.model.num_classes,
                 lr=cfg.train.lr,
-                # max_epochs = cfg.train.max_epochs
+                max_epochs=cfg.train.max_epochs
             )
             # data
             data = OralClassificationSaliencyDataModule(
+                train=cfg.dataset.train,
+                val=cfg.dataset.val,
+                test=cfg.dataset.test,
+                batch_size=cfg.train.batch_size,
+                train_transform=train_img_tranform,
+                val_transform=val_img_tranform,
+                test_transform=test_img_tranform,
+                transform=img_tranform,
+            )
+
+        # MASKED CLASSIFICATION
+        elif cfg.classification_mode == 'masked':
+            # classification model
+            model = OralClassifierModule(
+                weights=cfg.model.weights,
+                num_classes=cfg.model.num_classes,
+                lr=cfg.train.lr,
+                max_epochs=cfg.train.max_epochs
+            )
+            print("1111111111111111111111111111111111111111111111111111111111111")
+            # data
+            data = OralClassificationMaskedDataModule(
+                segmenter=cfg.model_seg,
                 train=cfg.dataset.train,
                 val=cfg.dataset.val,
                 test=cfg.dataset.test,
