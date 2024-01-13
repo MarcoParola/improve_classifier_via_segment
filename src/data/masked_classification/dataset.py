@@ -29,9 +29,9 @@ class OralClassificationMaskedDataset(torch.utils.data.Dataset):
 
         # qui bisogna fissare il migliore fcn ed il migliore deeplab invece di caricare la version
         if segmenter == 'fcn':
-            self.segment_model = FcnSegmentationNet.load_from_checkpoint(get_last_checkpoint(127))
+            self.segment_model = FcnSegmentationNet.load_from_checkpoint(get_last_checkpoint(136))
         elif segmenter == 'deeplab':
-            self.segment_model = DeeplabSegmentationNet.load_from_checkpoint(get_last_checkpoint(127))
+            self.segment_model = DeeplabSegmentationNet.load_from_checkpoint(get_last_checkpoint(136))
 
     def __len__(self):
         return len(self.dataset["annotations"])
@@ -44,13 +44,33 @@ class OralClassificationMaskedDataset(torch.utils.data.Dataset):
         if self.transform:
             image = self.transform(image)
         mask = self.segment_model(image.unsqueeze(0))
+
+
+        '''
         mask = mask.squeeze()
-        mask = mask.numpy().astype(np.uint8)
+        mask = mask.detach().numpy().astype(np.uint8)
+
+        mask = np.stack((mask, mask, mask), axis=-1)
+
+        print("mask_shape: ", mask.shape)
+
+        image = image * 255
         image = image.numpy().astype(np.uint8)
         image = image.transpose(2, 1, 0)
-        masked_image = cv2.bitwise_and(image, image, mask=mask)
+        print("image_shape: ", image.shape)
+        #masked_image = cv2.bitwise_and(image, image, mask=mask)
+        masked_image = image*(1-mask)
+
+
         masked_image = masked_image.transpose(2, 1, 0)
         masked_image = torch.tensor(masked_image, dtype=torch.float32)
+        '''
+        mask = mask.squeeze(0)
+        mask = mask.repeat(3, 1, 1)
+
+
+        masked_image = torch.mul(image, mask)
+
 
         category = self.categories[annotation["category_id"]]
 
@@ -63,12 +83,18 @@ if __name__ == "__main__":
     import torch
 
     dataset = OralClassificationMaskedDataset(
-        "data/train.json", True,
+        'fcn', "data/train.json",
         transform=transforms.Compose([
-            transforms.Resize((512, 512), antialias=True),
+            transforms.Resize((224, 224), antialias=True),
             transforms.ToTensor()
         ])
     )
-    image_masked, label = dataset.__getitem__(5)
-    plt.imshow(image_masked.permute(1, 2, 0))
+    image_masked, label = dataset.__getitem__(8)
+    image_masked = image_masked
+    image_masked = image_masked.detach().numpy()
+    image_masked = image_masked.transpose(2, 1, 0)
+    image_masked = (image_masked - np.min(image_masked)) / (np.max(image_masked) - np.min(image_masked))
+
+    plt.imshow(image_masked)
     plt.show()
+    print("shape masked_image: ", image_masked.shape)

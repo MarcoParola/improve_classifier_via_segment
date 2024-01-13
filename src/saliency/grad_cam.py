@@ -29,7 +29,7 @@ class OralGradCam:
         cam = HiResCAM(model=model, target_layers=target_layers, use_cuda=False)
 
         # iterate the dataloader passed
-        if classification_mode == 'masked':
+        if classification_mode == 'saliency':
             for batch_index, (images, _, _) in enumerate(dataloader):
                 for image_index, image in enumerate(images):
                     # this is needed to work with a single image
@@ -57,7 +57,7 @@ class OralGradCam:
                         bbox_inches='tight')
                     plt.close()
 
-        elif classification_mode == 'whole':
+        elif classification_mode == 'whole' or classification_mode == 'masked':
             for batch_index, (images, _) in enumerate(dataloader):
                 for image_index, image in enumerate(images):
                     # this is needed to work with a single image
@@ -70,7 +70,7 @@ class OralGradCam:
                     grayscale_cam = grayscale_cam[0, :]
                     # visualization = show_cam_on_image(image.permute(1, 2, 0).numpy(), grayscale_cam, use_rgb=True)
                     grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
-                    image_for_plot = image.permute(1, 2, 0).numpy()
+                    image_for_plot = image.permute(1, 2, 0).detach().numpy()
                     fig, ax = plt.subplots()
                     ax.imshow(image_for_plot)
                     ax.imshow((grayscale_cam * 255).astype('uint8'), cmap='jet', alpha=0.75)

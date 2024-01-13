@@ -31,7 +31,7 @@ class FcnSegmentationNet(LightningModule):
 
     def forward(self, x):
         out = self.pretrained_model(x)['out']
-        out = (out > self.sgm_threshold).float()
+        #out = (out > self.sgm_threshold).float()
         return out
 
     def predict_step(self, batch, batch_idx):
