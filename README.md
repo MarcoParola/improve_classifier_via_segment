@@ -72,7 +72,8 @@ Classification on the masked dataset:
 - test CNN for segmentation
 - train CNN classifier on the masked dataset
 - test CNN classifier on the masked dataset
-![2step-classification](https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/028a44df-4ddb-45b6-9df4-5485c30f9b18)
+
+<img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/028a44df-4ddb-45b6-9df4-5485c30f9b18" alt="drawing" width="280"/>
 
 Specify the pre-trained segmentation model by setting `model_seg`. `classification_mode=masked` specifies we are solving the classification by exploiting the segment information.
 
@@ -97,7 +98,9 @@ python test.py task=c classification_mode=masked model.weights=...
 Classification on the whole dataset exploiting saliency maps and masks:
 - train CNN classifier on the original dataset with backpropagating saliency map error
 - test CNN classifier on the whole dataset
-![saliency-classification](https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/b36037ce-553d-49a7-a165-b361ee124ff3)
+
+<img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/b36037ce-553d-49a7-a165-b361ee124ff3" alt="drawing" width="280"/>
+
 
 Specify the pre-trained classification model by setting `model.weights`.
 `classification_mode=saliency` specifies we are solving the classification by exploiting the saliency map information.
@@ -109,10 +112,6 @@ python train.py task=c classification_mode=saliency model.weights=ResNet50_Weigh
 # TEST classifier on whole images
 python test.py task=c classification_mode=saliency ...
 ```
-
-
-
-
 
 
 ### Visualize logs
