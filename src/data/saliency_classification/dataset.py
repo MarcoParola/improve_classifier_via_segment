@@ -44,8 +44,12 @@ class OralClassificationSaliencyDataset(torch.utils.data.Dataset):
 
 
         if self.transform:
+            seed = torch.randint(0, 100000, (1,)).item()
+            torch.manual_seed(seed)
             image = self.transform(image)
+            torch.manual_seed(seed)
             mask = self.transform(mask)
+
 
         # scale and repeat mask on all channels
         mask = mask / mask.max()

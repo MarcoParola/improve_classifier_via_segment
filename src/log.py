@@ -12,10 +12,21 @@ class LossLogCallback(pl.Callback):
 
     def on_train_epoch_end(self, trainer, pl_module):
         self.train_losses.append(trainer.callback_metrics["train_loss"].item())
+        ###
+        log_dir = 'logs/oral/' + get_last_version('logs/oral')
+        writer = SummaryWriter(log_dir=log_dir)
+        writer.add_scalars('train_val_loss', {'train': self.train_losses[-1]}, trainer.current_epoch)
+        writer.close()
+
 
     def on_validation_epoch_end(self, trainer, pl_module):
         self.val_losses.append(trainer.callback_metrics["val_loss"].item())
+        log_dir = 'logs/oral/' + get_last_version('logs/oral')
+        writer = SummaryWriter(log_dir=log_dir)
+        writer.add_scalars('train_val_loss', {'val': self.val_losses[-1]}, trainer.current_epoch)
+        writer.close()
 
+    '''
     def on_train_end(self, trainer, pl_module):
         log_dir = 'logs/oral/' + get_last_version('logs/oral')
         writer = SummaryWriter(log_dir=log_dir)
@@ -25,6 +36,7 @@ class LossLogCallback(pl.Callback):
             writer.add_scalars('train_val_loss', {'train': self.train_losses[i],
                                                   'val': self.val_losses[i]}, i)
         writer.close()
+    '''
 
 class HydraTimestampRunCallback(pl.Callback):
 

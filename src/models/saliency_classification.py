@@ -40,22 +40,15 @@ class OralSaliencyClassifierModule(LightningModule):
     def forward(self, x):
         torch.set_grad_enabled(True)
 
-        output = self.model(x)
-        return output
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        torch.set_grad_enabled(True)
-
-        output = self._common_step(batch, batch_idx, "train")
-        return output
+        return self._common_step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
-        torch.set_grad_enabled(True)
         self._common_step(batch, batch_idx, "val")
 
     def test_step(self, batch, batch_idx):
-        torch.set_grad_enabled(True)
-
         self._common_step(batch, batch_idx, "test")
         output = self(batch)
         accuracy = accuracy_score(output, batch['target'])
@@ -66,8 +59,7 @@ class OralSaliencyClassifierModule(LightningModule):
 
         img, label, mask = batch
         x = self.preprocess(img)
-        output = self(x)
-        return output
+        return self(x)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
@@ -107,7 +99,6 @@ class OralSaliencyClassifierModule(LightningModule):
             target_layers = [self.model.features[-1]]
 
         cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
-        #labels = torch.argmax(labels, dim=1)
         result = []
 
         for index, image in enumerate(imgs):
@@ -146,10 +137,8 @@ class OralSaliencyClassifierModule(LightningModule):
         mask = np.array(mask).squeeze()
         salient_area = np.array(salient_area).squeeze()
         # passare current_epoch e stage è solo per provare
-
         loss = self.loss(label, y_hat, salient_area, mask, self.current_epoch, stage)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
-        loss = torch.tensor(loss, dtype=torch.float32)
         loss.requires_grad_(True)
         return loss
 

@@ -57,8 +57,7 @@ class SaliencyAwareLoss(torch.nn.Module):
 
         writer.close()
 
-
-        return loss.item()
+        return loss
 
 
 if __name__ == '__main__':
