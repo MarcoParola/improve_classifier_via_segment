@@ -38,7 +38,7 @@ python -m scripts.dataset-stats --dataset data\test.json # test set
 
 ## Deep learning experiments
 
-All the experiments consist of train and test classification and segmentation architectures. You can use `train.py` and `test.py`, respectively. Where you have to set the `task` option to specify the task your architecture are solving:
+All the experiments consist of train and test classification and segmentation architectures. You can use `train.py` and `test.py`, respectively. Where you have to set the `task` option to specify the task your architecture is solving:
 - `task=c` or `task=classification` to run classification experiments 
 - `task=s` or `task=segmentation` to run segmentation experiments 
 
@@ -48,13 +48,13 @@ python test.py task=...
 ```
 
 ### **Exp 1** (baseline)
-Classification on whole dataset:
+Classification on the whole dataset:
 
-- Train CNN classifier on whole dataset
-- Test CNN classifier on whole dataset
+- Train CNN classifier on the whole dataset
+- Test CNN classifier on the whole dataset
 
-Specify the pretrained classification model by setting `model.weights`.
-`classification_mode=whole` is to specify we are solving the classification without exploiting the segment information.
+Specify the pre-trained classification model by setting `model.weights`.
+`classification_mode=whole` specifies we are solving the classification without exploiting the segment information.
 
 ```bash
 # TRAIN classifier on whole images
@@ -67,14 +67,15 @@ python test.py task=c classification_mode=whole ...
 
 
 ### **Exp 2**
-Classification on masked dataset:
-
+Classification on the masked dataset:
 - Train CNN for segmentation
 - test CNN for segmentation
-- train CNN classifier on masked dataset
-- test CNN classifier on masked dataset
+- train CNN classifier on the masked dataset
+- test CNN classifier on the masked dataset
 
-Specify the pretrained segmentation model by setting `model_seg`. `classification_mode=masked` is to specify we are solving the classification exploiting the segment information.
+<img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/028a44df-4ddb-45b6-9df4-5485c30f9b18" alt="drawing" width="280"/>
+
+Specify the pre-trained segmentation model by setting `model_seg`. `classification_mode=masked` specifies we are solving the classification by exploiting the segment information.
 
 ```bash
 # TRAIN segmentation NN
@@ -84,7 +85,7 @@ python train.py task=s model_seg=...
 python test.py task=s model_seg=...
 ```
 
-Specify the pretrained classification model by setting `model.weights`. Specify the segmentation model previoulsy trained for generate the masks by setting `model_seg.weights`.
+Specify the pre-trained classification model by setting `model.weights`. Specify the segmentation model previously trained for generate the masks by setting `model_seg.weights`.
 ```bash
 # TRAIN classifier on masked images
 python train.py task=c classification_mode=masked model.weights=...
@@ -94,12 +95,15 @@ python test.py task=c classification_mode=masked model.weights=...
 ```
 
 ### **Exp 3**
-Classification on whole dataset exploiting saliency maps and masks:
-- train CNN classifier on original dataset with backpropagating saliency map error
-- test CNN classifier on whole dataset
+Classification on the whole dataset exploiting saliency maps and masks:
+- train CNN classifier on the original dataset with backpropagating saliency map error
+- test CNN classifier on the whole dataset
 
-Specify the pretrained classification model by setting `model.weights`.
-`classification_mode=saliency` is to specify we are solving the classification exploiting the saliency map information.
+<img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/b36037ce-553d-49a7-a165-b361ee124ff3" alt="drawing" width="280"/>
+
+
+Specify the pre-trained classification model by setting `model.weights`.
+`classification_mode=saliency` specifies we are solving the classification by exploiting the saliency map information.
 
 ```bash
 # TRAIN classifier on whole images with saliency map information
@@ -108,10 +112,6 @@ python train.py task=c classification_mode=saliency model.weights=ResNet50_Weigh
 # TEST classifier on whole images
 python test.py task=c classification_mode=saliency ...
 ```
-
-
-
-
 
 
 ### Visualize logs
