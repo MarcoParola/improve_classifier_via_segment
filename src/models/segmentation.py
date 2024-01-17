@@ -14,7 +14,7 @@ class FcnSegmentationNet(LightningModule):
     '''
     This class implements a Fully Convolutional Network for segmentation.
     '''
-    def __init__(self, num_classes=1, lr=5e-7, epochs=1000, len_dataset=0, batch_size=0, loss=nn.BCEWithLogitsLoss(), sgm_type="hard", sgm_threshold=0.5):
+    def __init__(self, num_classes=1, lr=5e-7, epochs=1000, len_dataset=0, batch_size=0, loss=nn.BCEWithLogitsLoss(), sgm_type="soft", sgm_threshold=0.5):
         super(FcnSegmentationNet, self).__init__()
         self.pretrained_model = models.segmentation.fcn_resnet50(pretrained=True)
         #sostituendo il quinto strato del classificatore del modello preaddestrato con un nuovo strato di convoluzione 
@@ -31,7 +31,8 @@ class FcnSegmentationNet(LightningModule):
 
     def forward(self, x):
         out = self.pretrained_model(x)['out']
-        #out = (out > self.sgm_threshold).float()
+        if self.sgm_type == 'hard':
+            out = (out > self.sgm_threshold).float()
         return out
 
     def predict_step(self, batch, batch_idx):

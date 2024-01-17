@@ -10,6 +10,7 @@ model:
   weights: ResNet50_Weights.IMAGENET1K_V2
 
 model_seg: 'fcn'
+sgm_type: 'soft'
 
 dataset:
   train: ./data/train.json

@@ -1,7 +1,7 @@
 import os
 import re
 import torchvision
-import numpy as np  
+import numpy as np
 import pandas as pd
 import seaborn as sn
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
@@ -19,10 +19,9 @@ def get_early_stopping(cfg):
     early_stopping_callback = EarlyStopping(
         monitor='val_loss',
         mode='min',
-        patience=15,
+        patience=20,
     )
     return early_stopping_callback
-
 
 
 def get_transformations(cfg):
@@ -36,7 +35,6 @@ def get_transformations(cfg):
     ])
     val_img_tranform, test_img_tranform = None, None
 
-
     train_img_tranform = torchvision.transforms.Compose([
         torchvision.transforms.Resize(cfg.dataset.resize, antialias=True),
         torchvision.transforms.CenterCrop(cfg.dataset.resize),
@@ -44,9 +42,7 @@ def get_transformations(cfg):
         torchvision.transforms.RandomAffine(degrees=45, translate=(0.1, 0.1), scale=(0.9, 1.1), shear=10),
     ])
 
-
     return train_img_tranform, val_img_tranform, test_img_tranform, img_tranform
-    
 
 
 def log_confusion_matrix(actual, predicted, classes, log_dir):
@@ -59,7 +55,7 @@ def log_confusion_matrix(actual, predicted, classes, log_dir):
     writer = SummaryWriter(log_dir=log_dir)
     cf_matrix = confusion_matrix(actual, predicted)
     df_cm = pd.DataFrame(
-        cf_matrix / np.sum(cf_matrix, axis=1)[:, None], 
+        cf_matrix / np.sum(cf_matrix, axis=1)[:, None],
         index=[i for i in classes],
         columns=[i for i in classes])
     plt.figure(figsize=(5, 4))
@@ -72,7 +68,6 @@ def log_confusion_matrix(actual, predicted, classes, log_dir):
     writer.add_scalar('precision', precision_score(actual, predicted, average='micro'))
     writer.add_scalar('f1', f1_score(actual, predicted, average='micro'))
     writer.close()
-
 
 
 def get_last_version(path):
@@ -112,12 +107,13 @@ def convert_arrays_to_integers(array1, array2):
     """
     string_to_int_mapping = {}
     next_integer = 0
-    
+
     for string in array1:
         if string not in string_to_int_mapping:
             string_to_int_mapping[string] = next_integer
             next_integer += 1
-    
+
     result_array1 = [string_to_int_mapping[string] for string in array1]
     result_array2 = [string_to_int_mapping.get(string, next_integer) for string in array2]
     return result_array1, result_array2
+

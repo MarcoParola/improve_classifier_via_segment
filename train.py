@@ -115,9 +115,9 @@ def get_model_and_data(cfg):
                 lr=cfg.train.lr,
                 max_epochs=cfg.train.max_epochs
             )
-            print("1111111111111111111111111111111111111111111111111111111111111")
             # data
             data = OralClassificationMaskedDataModule(
+                sgm_type=cfg.sgm_type,
                 segmenter=cfg.model_seg,
                 train=cfg.dataset.train,
                 val=cfg.dataset.val,
@@ -146,7 +146,8 @@ def get_model_and_data(cfg):
                                            len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
         elif cfg.model_seg == 'fcn':
             model = FcnSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
-                                       len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+                                       len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size,
+                                       sgm_type=cfg.sgm_type)
 
     return model, data
 

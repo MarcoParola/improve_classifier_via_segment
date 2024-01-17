@@ -32,7 +32,7 @@ class SaliencyAwareLoss(torch.nn.Module):
         iosr = calculate_intersection_over_salient_region(salient_area, ground_truth_mask)
 
         # Combine the losses
-        loss = self.weight_loss * cross_entropy_loss + (1 - self.weight_loss) * iosr
+        loss = self.weight_loss * cross_entropy_loss - (1 - self.weight_loss) * iosr
 
         '''
         print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
