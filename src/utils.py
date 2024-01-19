@@ -78,7 +78,10 @@ def get_last_version(path):
     # get the folders starting with 'version_'
     folders = [f for f in folders if re.match(r'version_[0-9]+', f)]
     # get the last folder with the highest number
-    last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
+    if not folders:
+        last_folder = 'version_0'
+    else:
+        last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
     return last_folder
 
 

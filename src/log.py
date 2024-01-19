@@ -3,7 +3,8 @@ from torch.utils.tensorboard import SummaryWriter
 from src.utils import *
 import hydra
 import os
-
+from omegaconf import DictConfig, OmegaConf
+import flatdict
 
 class LossLogCallback(pl.Callback):
     def on_fit_start(self, trainer, pl_module):
@@ -53,6 +54,9 @@ class HydraTimestampRunCallback(pl.Callback):
         f.write(day + '/' + time)
         f.close()
 
+def hp_from_cfg(cfg):
+    cfg = OmegaConf.to_container(cfg, resolve=True)
+    return dict(flatdict.FlatDict(cfg, delimiter="/"))
 
 def get_loggers(cfg):
     """Returns a list of loggers

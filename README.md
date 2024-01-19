@@ -1,17 +1,32 @@
-# **Oral_classification_segment**
+# **Improve classifier via segment**
+[![size](https://img.shields.io/github/languages/code-size/MarcoParola/improve_classifier_via_segment?style=plastic)]()
+[![license](https://img.shields.io/static/v1?label=OS&message=Linux&color=green&style=plastic)]()
+[![Python](https://img.shields.io/static/v1?label=Python&message=3.10&color=blue&style=plastic)]()
+
 Github repo to improve classification performance by exploiting segment information
 
 ## **Install**
+
+To install the project, simply clone the repository and get the necessary dependencies:
+```sh
+git clone https://github.com/MarcoParola/improve_classifier_via_segment.git
+cd improve_classifier_via_segment
+```
 
 Create the virtualenv (you can also use conda) and install the dependencies of *requirements.txt*
 
 ```bash
 python -m venv env
-env/Scripts/activate
+. env/bin/activate
 python -m pip install -r requirements.txt
 mkdir data
 ```
 Then you can download the oral coco-dataset (both images and json file) from TODO-put-link. Copy them into `data` folder and unzip the file `oral1.zip`.
+
+Next, create a new project on [Weights & Biases](https://wandb.ai/site) named `improve_classifier_via_segment`. Edit `entity` parameter in [config.yaml](https://github.com/MarcoParola/improve_classifier_via_segment/blob/main/config/config.yaml#L42) by sett. Log in and paste your API key when prompted.
+```sh
+wandb login 
+```
 
 ## **Usage**
 In order to reproduce the experiments, we organize the workflow in 2 parts: 

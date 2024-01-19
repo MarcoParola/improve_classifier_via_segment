@@ -127,6 +127,7 @@ data/
 logs/
 outputs/
 lightning_logs/
+wandb/
 
 *.log
 *.pth
