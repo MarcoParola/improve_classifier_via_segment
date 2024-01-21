@@ -61,8 +61,8 @@ def calculate_intersection_over_salient_region(salient_area, ground_truth_mask):
     ground_truth_binary = (ground_truth_mask > 0).astype(np.uint8)
     intersection = np.logical_and(salient_binary, ground_truth_binary)
     salient_pixels = np.sum(salient_binary)
-    iosr = np.sum(intersection) / salient_pixels
+    iou = np.sum(intersection) / salient_pixels
 
-    return iosr
+    return iou
 
 
