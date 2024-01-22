@@ -28,11 +28,11 @@ class SaliencyAwareLoss(torch.nn.Module):
         # Calculate standard cross-entropy loss
         cross_entropy_loss = F.cross_entropy(predicted_lbl, actual_lbl)
 
-        # Calculate IoSR
-        iosr = calculate_intersection_over_salient_region(salient_area, ground_truth_mask)
+        # Calculate iou
+        iou = calculate_intersection_over_salient_region(salient_area, ground_truth_mask)
 
         # Combine the losses
-        loss = self.weight_loss * cross_entropy_loss - (1 - self.weight_loss) * iosr
+        loss = self.weight_loss * cross_entropy_loss - (1 - self.weight_loss) * iou
 
         '''
         print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
@@ -42,7 +42,7 @@ class SaliencyAwareLoss(torch.nn.Module):
         print("type(salient_area): ", type(salient_area.numpy()), salient_area.numpy().shape, type(salient_area[0][0]))
         print("type(ground_truth_mask): ", type(ground_truth_mask.numpy()), ground_truth_mask.numpy().shape)
         print("cross_entropy: ", cross_entropy_loss)
-        print("iosr: ", iosr)
+        print("iou: ", iou)
         print("loss: ", loss)
         '''
 
@@ -51,9 +51,9 @@ class SaliencyAwareLoss(torch.nn.Module):
         log_dir = 'logs/oral/' + get_last_version('logs/oral')
         writer = SummaryWriter(log_dir=log_dir)
         if stage == "val":
-            writer.add_scalars('val_loss_components', {'val_Cross_entropy_loss': cross_entropy_loss, 'val_iosr': iosr}, current_epoch)
+            writer.add_scalars('val_loss_components', {'val_Cross_entropy_loss': cross_entropy_loss, 'val_iou': iou}, current_epoch)
         elif stage == "train":
-            writer.add_scalars('train_loss_components', {'train_Cross_entropy_loss': cross_entropy_loss, 'train_iosr': iosr}, current_epoch)
+            writer.add_scalars('train_loss_components', {'train_Cross_entropy_loss': cross_entropy_loss, 'train_iou': iou}, current_epoch)
 
         writer.close()
 
@@ -61,6 +61,7 @@ class SaliencyAwareLoss(torch.nn.Module):
 
 
 if __name__ == '__main__':
+
     num_classes = 5
     batch_size = 32
     height, width = 30, 30
@@ -72,5 +73,7 @@ if __name__ == '__main__':
 
     loss_fn = SaliencyAwareLoss(weight_loss=0.8)
     loss = loss_fn(actual_labels, predicted_labels, salient_area, ground_truth_mask)
+
+
     print(loss)
 
