@@ -1,6 +1,6 @@
 # **Documentation**
 
-The project is composed of the following mosules, more details below:
+The project is composed of the following modules, more details are below:
 
 - [Main scripts for training and test models](#main-scripts-for-training-and-test-models)
 - [Pytorch-lightning logic modules (data and models)](#pytorch-lightning-logic-modules)
@@ -22,9 +22,9 @@ python test.py task=...
 ## Pytorch-lightning logic modules
 Since this project is developed using the `pytorch-lightning` framework, two key concepts are `Modules` to declare a new model and `DataModules` to organize of our dataset. Both of them are declared in `src/`, specifically in `src/models/` and `src/data/`, respectively. More information are in the next sections.
 
-### Datasets and datamodules
+### Deep learning models
 
-### Deep learning models implemented for each experiments
+### Datasets and datamodules
 
 ## Configuration handling
 The configuration managed with [Hydra](https://hydra.cc/). Every aspect of the configuration is located in `config/` folder. The file containing all the configuration is `config.yaml`.

@@ -30,7 +30,7 @@ wandb login
 
 ## **Usage**
 
-Here a quick overview of the main usage of the repo. More information can be found on the [official doc](doc/README.md).
+Here is a quick overview of the main use of the repo. Further information is available in the [official doc](doc/README.md).
 
 ### **Exp 1** (baseline)
 Classification on the whole dataset:
