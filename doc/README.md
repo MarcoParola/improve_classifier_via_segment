@@ -3,8 +3,7 @@
 The project is composed of the following mosules, more details below:
 
 - [Main scripts for training and test models](#main-scripts-for-training-and-test-models)
-- [Datasets and datamodules](#datasets-and-datamodules)
-- [Deep learning models implemented for each experiments](#deep-learning-models-implemented-for-each-experiments)
+- [Pytorch-lightning logic modules (data and models)](#pytorch-lightning-logic-modules)
 - [Configuration handling](#configuration-handling)
 - [Additional utility scripts](#additional-utility-scripts)
 
@@ -20,11 +19,15 @@ python train.py task=...
 python test.py task=...
 ```
 
-## Datasets and datamodules
+## Pytorch-lightning logic modules
+Since this project is developed using the `pytorch-lightning` framework, two key concepts are `Modules` to declare a new model and `DataModules` to organize of our dataset. Both of them are declared in `src/`, specifically in `src/models/` and `src/data/`, respectively. More information are in the next sections.
 
-## Deep learning models implemented for each experiments
+### Datasets and datamodules
+
+### Deep learning models implemented for each experiments
 
 ## Configuration handling
+The configuration managed with [Hydra](https://hydra.cc/). Every aspect of the configuration is located in `config/` folder. The file containing all the configuration is `config.yaml`.
 
 ## Additional utility scripts
 
@@ -32,7 +35,7 @@ In the `scripts/` folder, there are all independent files not involved in the `p
 
 Due to the possibility of errors in the dataset, such as missing images, run the check-dataset.py script to detect such errors. Returns the elements to be removed from the json file (this can be done manually or via a script).
 ```bash
-python -m scripts.check-dataset --dataset data\coco_dataset.json
+python -m scripts.check-dataset --dataset data/coco_dataset.json
 ```
 In this work, the dataset was annotated with more labels than necessary. Some are grouped under more general labels. To aggregate all the labels of the three diseases studied in this work, the following script is executed. In addition, we split the dataset with the holdout method.
 ```bash
@@ -42,7 +45,7 @@ python -m scripts.split-dataset --folder data
 
 You can use the `dataset-stats.py`   script to print the class occurrences for each dataset.
 ```bash
-python -m scripts.dataset-stats --dataset data\dataset.json # entire dataset
-python -m scripts.dataset-stats --dataset data\train.json # training set
-python -m scripts.dataset-stats --dataset data\test.json # test set
+python -m scripts.dataset-stats --dataset data/dataset.json # entire dataset
+python -m scripts.dataset-stats --dataset data/train.json # training set
+python -m scripts.dataset-stats --dataset data/test.json # test set
 ```
