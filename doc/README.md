@@ -1,10 +1,10 @@
 # **Documentation**
 
-The project is composed of the following mosules, more details below:
+The project is composed of the following modules, more details are below:
 
 - [Main scripts for training and test models](#main-scripts-for-training-and-test-models)
 - [Datasets and datamodules](#datasets-and-datamodules)
-- [Deep learning models implemented for each experiments](#deep-learning-models-implemented-for-each-experiments)
+- [Deep learning models implemented for each experiment](#deep-learning-models-implemented-for-each-experiments)
 - [Configuration handling](#configuration-handling)
 - [Additional utility scripts](#additional-utility-scripts)
 
@@ -22,7 +22,7 @@ python test.py task=...
 
 ## Datasets and datamodules
 
-## Deep learning models implemented for each experiments
+## Deep learning models implemented for each experiment
 
 ## Configuration handling
 
