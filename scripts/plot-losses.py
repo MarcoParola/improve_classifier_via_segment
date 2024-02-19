@@ -1,34 +1,3 @@
-# method to perform average on different length arrays
-# the input is an array of the arrays with want to compute the average on
-def custom_array_average(arr):
-    # save initial lengths
-    lengths = []
-    for row in arr:
-        lengths.append(len(row))
-    # compute max_length
-    max_length = max(lengths)
-    # padding
-    for k in range(len(arr)):
-        while max_length != len(arr[k]):
-            arr[k] = np.append(arr[k], arr[k][-1])
-
-    number_of_arrays = len(arr)
-    end_counter = number_of_arrays
-
-    result = np.array([])
-
-    for i in range(max_length):
-        for f in range(number_of_arrays):
-            if i == lengths[f]:
-                end_counter = end_counter-1
-        sum = 0
-        for m in range(len(arr)):
-            sum = sum+arr[m][i]
-
-        result = np.append(result, sum/end_counter)
-
-    return result
-
 import numpy as np
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 import matplotlib.pyplot as plt
