@@ -17,7 +17,7 @@ models = { 1: {1: {225, 286, 267, 247, 380, 381, 263, 240, 282, 278}, 3: {348, 3
           3: {1: {265, 284, 387, 388, 245, 389, 261, 238, 280, 276}, 3: {24, 34, 19, 361, 28, 362, 363, 364, 16, 209, 365, 366, 11}},
           4: {1: {224, 285, 266, 391, 392, 246, 393, 262, 239, 277, 281}, 3: {191, 367, 193, 194, 195, 201, 202, 208, 203, 204, 41, 368, 42, 369, 18, 192, 15, 370, 371, 372, 373, 374, 375, 10, 27, 376, 23, 14, 377}} }
 
-#per ora tralasciamo la loss_train e consideriamo solo la loss_val nei plot
+# As now everything related to loss_train is commented and is created plot only for loss_val
 for model_id in models:
     for experiment_id in models[model_id]:
         arr_train = []
@@ -39,42 +39,45 @@ for model_id in models:
 
             arr_train.append(train_loss_np)
             arr_val.append(val_loss_np)
-        #padding
+        # Padding
+        # curves with shorter length than maximum length are padded repeating the last value
         lengths = []
         for row in arr_val:
             lengths.append(len(row))
-        # compute max_length
+        # Compute max_length
         max_length = max(lengths)
         for k in range(len(arr_val)):
             while max_length != len(arr_val[k]):
                 arr_val[k] = np.append(arr_val[k], arr_val[k][-1])
 
-        # inside result_val there is the average of all the curves of all the versions for
+        # Inside result_val there is the average of all the curves of all the versions for
         # a certain experiment_id for a certain model_id
-        #result_train = custom_array_average(arr_train)
-        #result_val = custom_array_average(arr_val)
         mean_val = np.mean(arr_val, axis=0)
         std_dev_y = np.std(arr_val, axis=0)
 
         x_values = np.linspace(0, len(mean_val), len(mean_val))
 
+        # Confidence interval
         upper_confidence = mean_val + 1.645 * std_dev_y
         lower_confidence = mean_val - 1.645 * std_dev_y
 
         if experiment_id == 1:
-            plt.plot(x_values, mean_val, linewidth=2, label=f'Std. classification')
+            plt.plot(x_values, mean_val, linewidth=2, label=f'CEnt')
         elif experiment_id == 3:
             plt.plot(x_values, mean_val, linewidth=2, label=f'CEntIoU')
         plt.fill_between(x_values, upper_confidence, lower_confidence, alpha=0.2)
 
     plt.ylim(0.05, 1.35)
-    plt.xlabel('Epochs', fontsize=25)
-    plt.ylabel('Loss', fontsize=25)
-    plt.rcParams.update({'font.size': 25})
-    plt.legend(prop={'size': 25})
-    #plt.legend()
-    plt.savefig(f'loss_val_model_{model_id}.pdf')
+    plt.xlabel('Epochs', fontsize=22)  # 20
+    plt.ylabel('Loss', fontsize=22)  # 20
+    plt.rcParams.update({'font.size': 22})  # 20
+    plt.legend(prop={'size': 22})  # 20
+    plt.yticks(fontsize=19)
+    plt.xticks(fontsize=19)
+    plt.savefig(f'loss_val_model_{model_id}.pdf', bbox_inches="tight")
     plt.clf()
+    plt.close()
+
 
 
 
