@@ -92,9 +92,8 @@ class OralSaliencyClassifierModule(LightningModule):
             target_layers = [self.model.conv_proj]
         elif "convnext" in self.model_name:
             target_layers = [self.model.features[-1][-1]]
-        # swin è da cercare meglio il target layer
         elif "swin" in self.model_name:
-            target_layers = [self.model.features[0][0]]
+            target_layers = [self.model.features[7][1].norm2]
         elif "squeezenet" in self.model_name:
             target_layers = [self.model.features[-1]]
 
