@@ -82,7 +82,7 @@ Specify the pre-trained classification model by setting `model.weights`.
 # TRAIN classifier on whole images with saliency map information
 python train.py task=c classification_mode=saliency model.weights=ConvNeXt_Small_Weights.DEFAULT 
 
-# TEST classifier on whole images
+# TEST classifier on whole images with saliency map information
 python test.py task=c classification_mode=saliency checkpoint.version=123
 ```
 
@@ -92,7 +92,7 @@ This projects exploits [Hydra](https://hydra.cc/) so it's possible both to run e
 python train.py task=c classification_mode=saliency model.weights=ConvNeXt_Small_Weights.DEFAULT
 
 # TRAIN classifier on whole images with saliency map information overriding configuration parameters:
-python train.py task='c' classification_mode='saliency' model.weights=ConvNeXt_Small_Weights.DEFAULT train.max_epochs=700 train.lr=0.00001 train.accelerator='gpu' log.tensorboard=True log.wandb=False
+python train.py task='c' classification_mode='saliency' model.weights=ConvNeXt_Small_Weights.DEFAULT train.max_epochs=700 train.lr=0.00001 train.accelerator='gpu' log.tensorboard=True log.wandb=False generate_map='grad-cam'
 ```
 ## Pytorch-lightning logic modules
 Since this project is developed using the `pytorch-lightning` framework, two key concepts are `Modules` to declare a new model and `DataModules` to organize of our dataset. Both of them are declared in `src/`, specifically in `src/models/` and `src/data/`, respectively. More information are in the next sections.
