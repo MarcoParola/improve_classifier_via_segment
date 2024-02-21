@@ -55,8 +55,6 @@ def main(cfg):
     version = str(cfg.checkpoint.version)
     # save the passed saliency map generation method before overwriting the configuration with training configuration
     saliency_map_method = cfg.generate_map
-    # save the passed segmentation type before overwriting the configuration with training configuration
-    segmentation_type = cfg.sgm_type
     # find the hydra_run_timestamp.txt file
     f = open('./logs/oral/version_' + version + '/hydra_run_timestamp.txt', "r")
     # read the timestamp inside hydra_run_timestamp.txt
@@ -126,7 +124,7 @@ def main(cfg):
 
             train_img_tranform, val_img_tranform, test_img_tranform, img_tranform = get_transformations(cfg)
             data = OralClassificationMaskedDataModule(
-                sgm_type=segmentation_type,
+                sgm_type=cfg.sgm_type,
                 segmenter=cfg.model_seg,
                 train=cfg.dataset.train,
                 val=cfg.dataset.val,
@@ -152,7 +150,7 @@ def main(cfg):
         )
         if cfg.model_seg == 'fcn':
             model = FcnSegmentationNet.load_from_checkpoint(get_last_checkpoint(version))
-            model.sgm_type = segmentation_type
+            model.sgm_type = cfg.sgm_type
         elif cfg.model_seg == 'deeplab':
             model = DeeplabSegmentationNet.load_from_checkpoint(get_last_checkpoint(version))
 
