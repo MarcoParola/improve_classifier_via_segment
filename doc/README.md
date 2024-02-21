@@ -19,6 +19,14 @@ python train.py task=...
 python test.py task=...
 ```
 
+The four avalilable [torchvision models](https://github.com/pytorch/vision/tree/main/torchvision/models) are:
+```bash
+ConvNeXt_Small_Weights.DEFAULT
+SqueezeNet1_0_Weights.DEFAULT
+ViT_B_16_Weights.DEFAULT
+Swin_S_Weights.DEFAULT
+```
+
 ### **Exp 1** (baseline)
 Classification on the whole dataset:
 
