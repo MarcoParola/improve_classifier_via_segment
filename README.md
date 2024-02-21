@@ -95,7 +95,7 @@ Specify the pre-trained classification model by setting `model.weights`.
 # TRAIN classifier on whole images with saliency map information
 python train.py task=c classification_mode=saliency model.weights=ConvNeXt_Small_Weights.DEFAULT 
 
-# TEST classifier on whole images
+# TEST classifier on whole images with saliency map information
 python test.py task=c classification_mode=saliency checkpoint.version=123
 ```
 
