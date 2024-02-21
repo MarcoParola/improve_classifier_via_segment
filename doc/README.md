@@ -52,19 +52,19 @@ Specify the pre-trained segmentation model by setting `model_seg`. `classificati
 The first step of this task is to train a segmentation NN that will be used to generate masks for images in the next step.
 ```bash
 # TRAIN segmentation NN
-python train.py task=s model_seg='fcn'
+python train.py task=s model_seg=['fcn', 'deeplab']
 
 # TEST segmentation NN
-python test.py task=s model_seg='fcn' checkpoint.version=123
+python test.py task=s model_seg=['fcn', 'deeplab'] checkpoint.version=123
 ```
 After training your segmentation NN insert the version of the model you want to exploit in the masked classification in the `__init__` method of [`src/data/masked_classification/dataset.py`](https://github.com/MarcoParola/improve_classifier_via_segment/blob/main/src/data/masked_classification/dataset.py).
 Specify the pre-trained classification model by setting `model.weights`. Specify the segmentation model previously trained for generate the masks by setting `model_seg`.
 ```bash
 # TRAIN classifier on masked images
-python train.py task=c classification_mode=masked model.weights=ConvNeXt_Small_Weights.DEFAULT model_seg='fcn' sgm_type='soft'
+python train.py task=c classification_mode=masked model.weights=ConvNeXt_Small_Weights.DEFAULT model_seg=['fcn', 'deeplab'] sgm_type=['soft', 'hard']
 
 # TEST classifier on masked images
-python test.py task=c classification_mode=masked model_seg='fcn' checkpoint.version=123
+python test.py task=c classification_mode=masked model_seg=['fcn', 'deeplab'] checkpoint.version=123
 ```
 
 ### **Exp 3**
