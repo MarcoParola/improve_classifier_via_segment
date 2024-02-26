@@ -43,10 +43,10 @@ Specify the pre-trained classification model by setting `model.weights`.
 
 ```bash
 # TRAIN classifier on whole images
-python train.py task=c classification_mode=whole model.weights=ResNet50_Weights.IMAGENET1K_V2 
+python train.py task=c classification_mode=whole model.weights=ConvNeXt_Small_Weights.DEFAULT 
 
 # TEST classifier whole images
-python test.py task=c classification_mode=whole ...
+python test.py task=c classification_mode=whole checkpoint.version=123
 ```
 
 
@@ -62,21 +62,22 @@ Classification on the masked dataset:
 
 Specify the pre-trained segmentation model by setting `model_seg`. `classification_mode=masked` specifies we are solving the classification by exploiting the segment information.
 
+The first step of this task is to train a segmentation NN that will be used to generate masks for images in the next step.
 ```bash
 # TRAIN segmentation NN
-python train.py task=s model_seg=...
+python train.py task=s model_seg='fcn'
 
 # TEST segmentation NN
-python test.py task=s model_seg=...
+python test.py task=s model_seg='fcn' checkpoint.version=123
 ```
-
-Specify the pre-trained classification model by setting `model.weights`. Specify the segmentation model previously trained for generate the masks by setting `model_seg.weights`.
+After training your segmentation NN insert the version of the model you want to exploit in the masked classification in the `__init__` method of [`src/data/masked_classification/dataset.py`](https://github.com/MarcoParola/improve_classifier_via_segment/blob/main/src/data/masked_classification/dataset.py).
+Specify the pre-trained classification model by setting `model.weights`. Specify the segmentation model previously trained for generate the masks by setting `model_seg`.
 ```bash
 # TRAIN classifier on masked images
-python train.py task=c classification_mode=masked model.weights=...
+python train.py task=c classification_mode=masked model.weights=ConvNeXt_Small_Weights.DEFAULT model_seg='fcn' sgm_type='soft'
 
 # TEST classifier on masked images
-python test.py task=c classification_mode=masked model.weights=...
+python test.py task=c classification_mode=masked model_seg='fcn' checkpoint.version=123
 ```
 
 ### **Exp 3**
@@ -92,10 +93,10 @@ Specify the pre-trained classification model by setting `model.weights`.
 
 ```bash
 # TRAIN classifier on whole images with saliency map information
-python train.py task=c classification_mode=saliency model.weights=ResNet50_Weights.IMAGENET1K_V2 
+python train.py task=c classification_mode=saliency model.weights=ConvNeXt_Small_Weights.DEFAULT 
 
-# TEST classifier on whole images
-python test.py task=c classification_mode=saliency ...
+# TEST classifier on whole images with saliency map information
+python test.py task=c classification_mode=saliency checkpoint.version=123
 ```
 
 
