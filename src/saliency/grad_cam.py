@@ -53,7 +53,7 @@ class OralGradCam:
                     os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test', exist_ok=True)
                     #visualization_image.save(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test/saliency_map_batch_{batch_index}_image_{image_index}.jpg')
                     plt.savefig(os.path.join(
-                        f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test/saliency_map_batch_{batch_index}_image_{image_index}.jpg'),
+                        f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test/saliency_map_batch_{batch_index}_image_{image_index}.pdf'),
                         bbox_inches='tight')
                     plt.close()
 
@@ -82,7 +82,7 @@ class OralGradCam:
                                 exist_ok=True)
                     # visualization_image.save(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test/saliency_map_batch_{batch_index}_image_{image_index}.jpg')
                     plt.savefig(os.path.join(
-                        f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test/saliency_map_batch_{batch_index}_image_{image_index}.jpg'),
+                        f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps_test/saliency_map_batch_{batch_index}_image_{image_index}.pdf'),
                         bbox_inches='tight')
                     plt.close()
 

@@ -33,7 +33,6 @@ class OralClassificationDataset(torch.utils.data.Dataset):
         image_path = os.path.join(os.path.dirname(self.annonations), "oral1", image["file_name"])
         image = Image.open(image_path).convert("RGB")
 
-
         if self.transform:
             image = self.transform(image)
 

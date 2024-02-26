@@ -23,13 +23,13 @@ class OralClassificationSaliencyDataModule(LightningDataModule):
         self.batch_size = batch_size
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=7)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=7)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size)
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=7)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False)
 
     def predict_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=7)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False)

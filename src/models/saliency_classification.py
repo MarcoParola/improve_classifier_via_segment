@@ -9,7 +9,7 @@ import numpy as np
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from PIL import Image
 import matplotlib.pyplot as plt
-
+from src.utils import *
 import os
 import hydra
 
@@ -30,12 +30,13 @@ class OralSaliencyClassifierModule(LightningModule):
         weights = getattr(weights_cls, weights_name)
 
         self.model = getattr(torchvision.models, self.model_name)(weights=weights)
-
         self._set_model_classifier(weights_cls, num_classes)
-
         self.preprocess = weights.transforms()
         self.loss = SaliencyAwareLoss(weight_loss=0.7)
         self.loss.requires_grad_(True)
+        self.total_predictions = None
+        self.total_labels = None
+        self.classes = ['Neoplastic', 'Aphthous', 'Traumatic']
 
     def forward(self, x):
         torch.set_grad_enabled(True)
@@ -49,14 +50,38 @@ class OralSaliencyClassifierModule(LightningModule):
         self._common_step(batch, batch_idx, "val")
 
     def test_step(self, batch, batch_idx):
-        self._common_step(batch, batch_idx, "test")
-        output = self(batch)
-        accuracy = accuracy_score(output, batch['target'])
-        self.log('test_accuracy', accuracy)
+        self.eval()
+        imgs, labels, _ = batch
+        x = self.preprocess(imgs)
+        y_hat = self(x)
+        predictions = torch.argmax(y_hat, dim=1)
+        self.log(f'test_accuracy', accuracy_score(labels, predictions), on_step=True, on_epoch=True, logger=True)
+        self.log('recall', recall_score(labels, predictions, average='micro'), on_step=True, on_epoch=True, logger=True)
+        self.log('precision', precision_score(labels, predictions, average='micro'), on_step=True, on_epoch=True,
+                 logger=True)
+        self.log('f1', f1_score(labels, predictions, average='micro'), on_step=True, on_epoch=True, logger=True)
+
+        # this accumulation is necessary in order to log confusion matrix of all the test and not just the last step
+        if self.total_labels is None:
+            self.total_labels = labels.numpy()
+            self.total_predictions = predictions.numpy()
+        else:
+            self.total_labels = np.concatenate((self.total_labels, labels.numpy()), axis=None)
+            self.total_predictions = np.concatenate((self.total_predictions, predictions.numpy()), axis=None)
+
+        # check if it's the last test step
+        if self.trainer.num_test_batches[0] == batch_idx + 1:
+            # logging confusion matrix on wandb
+            log_confusion_matrix_wandb(self.logger.__class__.__name__.lower(), self.logger.experiment,
+                                       self.total_labels, self.total_predictions, self.classes)
+            # get tensorboard logger if present il loggers list
+            tb_logger = get_tensorboard_logger(self.trainer.loggers)
+            # logging confusion matrix on tensorboard
+            log_confusion_matrix_tensorboard(actual=self.total_labels, predicted=self.total_predictions,
+                                             classes=self.classes, writer=tb_logger)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
         torch.set_grad_enabled(True)
-
         img, label, mask = batch
         x = self.preprocess(img)
         return self(x)
@@ -87,7 +112,6 @@ class OralSaliencyClassifierModule(LightningModule):
         print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 
     def get_salient_area(self, imgs, labels, stage, batch_index):
-
         if "vit" in self.model_name:
             target_layers = [self.model.conv_proj]
         elif "convnext" in self.model_name:
@@ -107,6 +131,7 @@ class OralSaliencyClassifierModule(LightningModule):
             grayscale_cam = grayscale_cam[0, :]
             grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
 
+            # save the saliency maps of the first 10 images of each batch during validation
             if stage == "val" and index < 10 and batch_index == 0:
                 image_for_plot = image.permute(1, 2, 0).numpy()
                 fig, ax = plt.subplots()
@@ -114,13 +139,10 @@ class OralSaliencyClassifierModule(LightningModule):
                 ax.imshow((grayscale_cam*255).astype('uint8'), cmap='jet', alpha=0.75)  # Overlay saliency map
                 os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps',
                             exist_ok=True)
-                plt.savefig(os.path.join(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.jpg'), bbox_inches='tight')
+                plt.savefig(os.path.join(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.pdf'), bbox_inches='tight')
                 plt.close()
 
-           # self.print_map_stats(grayscale_cam)
             _, grayscale_cam = cv2.threshold(grayscale_cam, 0.5, 1, cv2.THRESH_BINARY)
-           # self.print_map_stats(grayscale_cam)
-
             result.append(grayscale_cam)
 
         result = torch.tensor(result)
@@ -135,7 +157,6 @@ class OralSaliencyClassifierModule(LightningModule):
 
         mask = np.array(mask).squeeze()
         salient_area = np.array(salient_area).squeeze()
-        # passare current_epoch e stage è solo per provare
         loss = self.loss(label, y_hat, salient_area, mask, self.current_epoch, stage)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
         loss.requires_grad_(True)

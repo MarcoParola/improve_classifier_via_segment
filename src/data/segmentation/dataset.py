@@ -43,8 +43,6 @@ class OralSegmentationDataset(torch.utils.data.Dataset):
         for segment in segments:
             ImageDraw.Draw(mask).polygon(segment, outline=1, fill=1)
 
-        
-
         if self.transform:
             seed = torch.randint(0, 100000, (1,)).item()
             torch.manual_seed(seed)

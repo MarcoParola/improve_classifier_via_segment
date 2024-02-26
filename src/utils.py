@@ -9,8 +9,9 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, precision_score, f1_score
 from sklearn.utils.multiclass import unique_labels
 from torch.utils.tensorboard import SummaryWriter
+from pytorch_lightning.loggers import TensorBoardLogger
 from torchvision.transforms.v2 import AutoAugmentPolicy, functional as F, InterpolationMode, Transform
-
+import wandb
 
 def get_early_stopping(cfg):
     """Returns an EarlyStopping callback
@@ -45,6 +46,7 @@ def get_transformations(cfg):
     return train_img_tranform, val_img_tranform, test_img_tranform, img_tranform
 
 
+# Not used anymore
 def log_confusion_matrix(actual, predicted, classes, log_dir):
     """Logs the confusion matrix to tensorboard
     actual: ground truth
@@ -69,6 +71,34 @@ def log_confusion_matrix(actual, predicted, classes, log_dir):
     writer.add_scalar('f1', f1_score(actual, predicted, average='micro'))
     writer.close()
 
+def get_tensorboard_logger(list_loggers):
+    tb_logger = None
+    for logger in list_loggers:
+        if isinstance(logger, TensorBoardLogger):
+            tb_logger = logger.experiment
+            break
+    return tb_logger
+
+def log_confusion_matrix_tensorboard(actual, predicted, classes, writer):
+    if writer is None:
+        return
+    cf_matrix = confusion_matrix(actual, predicted)
+    df_cm = pd.DataFrame(
+        cf_matrix / np.sum(cf_matrix, axis=1)[:, None],
+        index=[i for i in classes],
+        columns=[i for i in classes])
+    plt.figure(figsize=(5, 4))
+    img = sn.heatmap(df_cm, annot=True, cmap="Greens").get_figure()
+    writer.add_figure("Confusion Matrix", img, 0)
+    writer.close()
+
+def log_confusion_matrix_wandb(list_loggers, logger, y_true, preds, class_names):
+    # check if wandb is in the list of loggers
+    if 'wandb' in list_loggers:
+        # logging confusion matrix on wandb
+        logger.log({"conf_mat": wandb.plot.confusion_matrix(probs=None, y_true=y_true,
+                                                                            preds=preds,
+                                                                            class_names=class_names)})
 
 def get_last_version(path):
     """Return the last version of the folder in path

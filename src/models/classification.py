@@ -2,59 +2,81 @@ import torch
 import torchvision
 from pytorch_grad_cam import GradCAM, HiResCAM, ScoreCAM, GradCAMPlusPlus, AblationCAM, XGradCAM, EigenCAM, FullGrad
 import cv2
+import numpy as np
+from sklearn.metrics import confusion_matrix, recall_score, precision_score, f1_score
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_lightning import LightningModule
-from sklearn.metrics import accuracy_score
+from pytorch_lightning.loggers import wandb, TensorBoardLogger
+from sklearn.metrics import accuracy_score, balanced_accuracy_score
 import matplotlib.pyplot as plt
 import hydra
 import os
+import wandb
+from src.utils import log_confusion_matrix_tensorboard, get_tensorboard_logger, log_confusion_matrix_wandb
+import pandas as pd
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
 
 class OralClassifierModule(LightningModule):
 
-    def __init__(self, weights, num_classes, lr=10e-3, max_epochs = 100):
+    def __init__(self, weights, num_classes, lr=10e-3, max_epochs=100):
         super().__init__()
         self.save_hyperparameters()
         assert "." in weights, "Weights must be <MODEL>.<WEIGHTS>"
         weights_cls = weights.split(".")[0]
         weights_name = weights.split(".")[1]
         self.model_name = weights.split("_Weights")[0].lower()
-        
+        self.num_classes = num_classes
         weights_cls = getattr(torchvision.models, weights_cls)
         weights = getattr(weights_cls, weights_name)
-
         self.model = getattr(torchvision.models, self.model_name)(weights=weights)
-        
         self._set_model_classifier(weights_cls, num_classes)
-
         self.preprocess = weights.transforms()
         self.loss = torch.nn.CrossEntropyLoss()
+        self.total_predictions = None
+        self.total_labels = None
+        self.classes = ['Neoplastic', 'Aphthous', 'Traumatic']
 
     def forward(self, x):
-        torch.set_grad_enabled(True)
-
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        torch.set_grad_enabled(True)
-
         return self._common_step(batch, batch_idx, "train")
 
     def validation_step(self, batch, batch_idx):
-        torch.set_grad_enabled(True)
+        self._common_step(batch, batch_idx, "val")
 
-        self._common_step(batch, batch_idx, "val") 
-        
     def test_step(self, batch, batch_idx):
-        torch.set_grad_enabled(True)
+        self.eval()
+        imgs, labels = batch
+        x = self.preprocess(imgs)
+        y_hat = self(x)
+        predictions = torch.argmax(y_hat, dim=1)
+        self.log('test_accuracy', accuracy_score(labels, predictions), on_step=True, on_epoch=True, logger=True)
+        self.log('recall', recall_score(labels, predictions, average='micro'), on_step=True, on_epoch=True, logger=True)
+        self.log('precision', precision_score(labels, predictions, average='micro'), on_step=True, on_epoch=True, logger=True)
+        self.log('f1', f1_score(labels, predictions, average='micro'), on_step=True, on_epoch=True, logger=True)
 
-        self._common_step(batch, batch_idx, "test")
-        output = self(batch)
-        accuracy = accuracy_score(output, batch['target'])
-        self.log('test_accuracy', accuracy)
+        # this accumulation is necessary in order to log confusion matrix of all the test and not just the last step
+        if self.total_labels is None:
+            self.total_labels = labels.numpy()
+            self.total_predictions = predictions.numpy()
+        else:
+            self.total_labels = np.concatenate((self.total_labels, labels.numpy()), axis=None)
+            self.total_predictions = np.concatenate((self.total_predictions, predictions.numpy()), axis=None)
+
+        # check if it's the last test step
+        if self.trainer.num_test_batches[0] == batch_idx+1:
+            # logging confusion matrix on wandb
+            log_confusion_matrix_wandb(self.logger.__class__.__name__.lower(), self.logger.experiment, self.total_labels, self.total_predictions, self.classes)
+            # get tensorboard logger if present il loggers list
+            tb_logger = get_tensorboard_logger(self.trainer.loggers)
+            # logging confusion matrix on tensorboard
+            log_confusion_matrix_tensorboard(actual=self.total_labels, predicted=self.total_predictions,
+                                             classes=self.classes, writer=tb_logger)
 
     def predict_step(self, batch, batch_idx, dataloader_idx=None):
-        torch.set_grad_enabled(True)
-
         img, label = batch
         x = self.preprocess(img)
         return self(x)
@@ -62,13 +84,11 @@ class OralClassifierModule(LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.hparams.max_epochs, eta_min=1e-5)
-
         lr_scheduler_config = {
             "scheduler": scheduler,
             "interval": "step",
             "frequency": 1
         }
-
         return [optimizer], [lr_scheduler_config]
 
     def _common_step(self, batch, batch_idx, stage):
@@ -81,7 +101,6 @@ class OralClassifierModule(LightningModule):
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
 
         if stage == "val" and batch_idx == 0:
-
             if "vit" in self.model_name:
                 target_layers = [self.model.conv_proj]
             elif "convnext" in self.model_name:
@@ -106,14 +125,13 @@ class OralClassifierModule(LightningModule):
                 os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps',
                             exist_ok=True)
                 plt.savefig(os.path.join(
-                    f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.jpg'),
-                            bbox_inches='tight')
+                    f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.pdf'),
+                    bbox_inches='tight')
                 plt.close()
-
 
         return loss
 
-    def _set_model_classifier(self, weights_cls, num_classes): 
+    def _set_model_classifier(self, weights_cls, num_classes):
         weights_cls = str(weights_cls)
         if "ConvNeXt" in weights_cls:
             self.model.classifier = torch.nn.Sequential(
@@ -189,5 +207,3 @@ class OralClassifierModule(LightningModule):
                 torch.nn.ReLU(),
                 torch.nn.AvgPool2d(kernel_size=13, stride=1, padding=0)
             )
-
-

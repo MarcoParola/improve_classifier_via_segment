@@ -26,22 +26,11 @@ from src.log import get_loggers
 def predict(trainer, model, data, saliency_map_flag, task, classification_mode):
 
     if task == 'c' or task == 'classification':
-        predictions = trainer.predict(model, data)
-        predictions = torch.cat(predictions, dim=0)
-        predictions = torch.argmax(predictions, dim=1)
-
-        if classification_mode == 'saliency':
-            gt = torch.cat([y for _, y, _ in data.test_dataloader()], dim=0)
-        elif classification_mode == 'whole' or classification_mode == 'masked':
-            gt = torch.cat([y for _, y in data.test_dataloader()], dim=0)
-
-        print(classification_report(gt, predictions))
-
-        class_names = np.array(['Neoplastic', 'Aphthous', 'Traumatic'])
-        log_dir = 'logs/oral/' + get_last_version('logs/oral')
-        log_confusion_matrix(gt, predictions, classes=class_names, log_dir=log_dir)
-
+        trainer.test(model, data.test_dataloader())
         if saliency_map_flag == "grad-cam":
+            predictions = trainer.predict(model, data)
+            predictions = torch.cat(predictions, dim=0)
+            predictions = torch.argmax(predictions, dim=1)
             OralGradCam.generate_saliency_maps_grad_cam(model, data.test_dataloader(), predictions, classification_mode)
 
     elif task == 's' or task == 'segmentation':
@@ -55,6 +44,8 @@ def main(cfg):
     version = str(cfg.checkpoint.version)
     # save the passed saliency map generation method before overwriting the configuration with training configuration
     saliency_map_method = cfg.generate_map
+    # save the passed logging method before overwriting the configuration with training configuration
+    loggers = get_loggers(cfg)
     # find the hydra_run_timestamp.txt file
     f = open('./logs/oral/version_' + version + '/hydra_run_timestamp.txt', "r")
     # read the timestamp inside hydra_run_timestamp.txt
@@ -67,7 +58,7 @@ def main(cfg):
     # to test is needed: trainer, model and data
     # trainer
     trainer = pytorch_lightning.Trainer(
-        logger=get_loggers(cfg),
+        logger=loggers,
         # callbacks=callbacks,  shouldn't need callbacks in test
         accelerator=cfg.train.accelerator,
         devices=cfg.train.devices,
@@ -153,6 +144,7 @@ def main(cfg):
             model.sgm_type = cfg.sgm_type
         elif cfg.model_seg == 'deeplab':
             model = DeeplabSegmentationNet.load_from_checkpoint(get_last_checkpoint(version))
+            model.sgm_type = cfg.sgm_type
 
         model.eval()
 

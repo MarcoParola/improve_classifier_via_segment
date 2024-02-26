@@ -33,6 +33,7 @@ class OralClassificationMaskedDataset(torch.utils.data.Dataset):
             self.segment_model.sgm_type = sgm_type
         elif segmenter == 'deeplab':
             self.segment_model = DeeplabSegmentationNet.load_from_checkpoint(get_last_checkpoint(136))
+            self.segment_model.sgm_type = sgm_type
 
     def __len__(self):
         return len(self.dataset["annotations"])

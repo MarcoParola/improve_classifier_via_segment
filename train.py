@@ -44,7 +44,7 @@ def main(cfg):
     )
     trainer.fit(model, data)
 
-    # prediction
+    # test step
     predict(trainer, model, data, cfg.generate_map, cfg.task, cfg.classification_mode)
 
 
@@ -65,7 +65,7 @@ def get_model_and_data(cfg):
 
     # CLASSIFICATION WHOLE
     if cfg.task == 'c' or cfg.task == 'classification':
-        if cfg.classification_mode =='whole':
+        if cfg.classification_mode == 'whole':
             # classification model
             model = OralClassifierModule(
                 weights=cfg.model.weights,
@@ -143,7 +143,8 @@ def get_model_and_data(cfg):
         )
         if cfg.model_seg == 'deeplab':
             model = DeeplabSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
-                                           len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size)
+                                           len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size,
+                                           sgm_type=cfg.sgm_type)
         elif cfg.model_seg == 'fcn':
             model = FcnSegmentationNet(lr=cfg.train.lr, epochs=cfg.train.max_epochs,
                                        len_dataset=data.train_dataset.__len__(), batch_size=cfg.train.batch_size,

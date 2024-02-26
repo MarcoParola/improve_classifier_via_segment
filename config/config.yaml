@@ -21,7 +21,7 @@ dataset:
 train:
   save_path: "./models/"
   seed: -1
-  batch_size: 8
+  batch_size: 32
   lr: 0.000004
   accelerator: "cpu"
   devices: 1
@@ -39,6 +39,6 @@ log:
 
 wandb:
   wandb:
-  entity: marcoparola
+  entity: edoardo-malaspina
   project: improve_classifier_via_segment 
   tag: ""
