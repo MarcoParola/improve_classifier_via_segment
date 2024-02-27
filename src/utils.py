@@ -114,6 +114,20 @@ def get_last_version(path):
         last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
     return last_folder
 
+def get_current_logging_version(path):
+    folders = os.listdir(path)
+    # get the folders starting with 'version_'
+    folders = [f for f in folders if re.match(r'version_[0-9]+', f)]
+    # get the last folder with the highest number
+    if not folders:
+        last_folder = 'version_0'
+    else:
+        last_folder = max(folders, key=lambda f: int(f.split('_')[1]))
+        last_number=last_folder.split("_")[1]
+        new_number = int(last_number)+1
+        new_folder = "version_" + str(new_number)
+    return new_folder
+
 
 def get_last_checkpoint(version):
     checkpoint_dir = "logs/oral/version_" + str(version) + "/checkpoints"

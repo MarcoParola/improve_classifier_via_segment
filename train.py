@@ -3,6 +3,7 @@ import torch
 import pytorch_lightning as pl
 from sklearn.metrics import classification_report
 import numpy as np
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 from src.data.classification.datamodule import OralClassificationDataModule
 from src.data.masked_classification.datamodule import OralClassificationMaskedDataModule
@@ -26,15 +27,24 @@ def main(cfg):
     torch.manual_seed(cfg.train.seed)
 
     callbacks = list()
+    checkpoint_callback = ModelCheckpoint(
+        dirpath = 'logs/oral/' + get_current_logging_version('logs/oral') + "/checkpoints/",
+        save_on_train_epoch_end=True,
+        save_top_k=1,
+        monitor="val_loss",
+        mode="min"
+    )
     callbacks.append(get_early_stopping(cfg))
     callbacks.append(LossLogCallback())
     callbacks.append(HydraTimestampRunCallback())
+    callbacks.append(checkpoint_callback)
     loggers = get_loggers(cfg)
 
     model, data = get_model_and_data(cfg)
 
     # training
     trainer = pl.Trainer(
+        default_root_dir='logs/oral/' + get_current_logging_version('logs/oral') + "/checkpoints/",
         logger=loggers,
         callbacks=callbacks,
         accelerator=cfg.train.accelerator,
