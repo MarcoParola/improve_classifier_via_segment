@@ -100,35 +100,6 @@ class OralClassifierModule(LightningModule):
         loss = self.loss(y_hat, labels)
         self.log(f"{stage}_loss", loss, on_step=True, on_epoch=True)
 
-        if stage == "val" and batch_idx == 0:
-            if "vit" in self.model_name:
-                target_layers = [self.model.conv_proj]
-            elif "convnext" in self.model_name:
-                target_layers = [self.model.features[-1][-1]]
-                # swin è da cercare meglio il target layer
-            elif "swin" in self.model_name:
-                target_layers = [self.model.features[0][0]]
-            elif "squeezenet" in self.model_name:
-                target_layers = [self.model.features[-1]]
-
-            cam = HiResCAM(model=self, target_layers=target_layers, use_cuda=False)
-            for index, image in enumerate(imgs[0:10]):
-                label = labels[index]
-                target = [ClassifierOutputTarget(label)]
-                grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=target)
-                grayscale_cam = grayscale_cam[0, :]
-                grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
-                image_for_plot = image.permute(1, 2, 0).numpy()
-                fig, ax = plt.subplots()
-                ax.imshow(image_for_plot)
-                ax.imshow((grayscale_cam * 255).astype('uint8'), cmap='jet', alpha=0.75)  # Overlay saliency map
-                os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps',
-                            exist_ok=True)
-                plt.savefig(os.path.join(
-                    f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.pdf'),
-                    bbox_inches='tight')
-                plt.close()
-
         return loss
 
     def _set_model_classifier(self, weights_cls, num_classes):

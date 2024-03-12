@@ -99,18 +99,6 @@ class OralSaliencyClassifierModule(LightningModule):
 
         return [optimizer], [lr_scheduler_config]
 
-    def print_map_stats(self, saliency_map):
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-        print("Maximum:", np.max(saliency_map))
-        print("Minimum:", np.min(saliency_map))
-        print("Average:", np.mean(saliency_map))
-        print("Shape:", saliency_map.shape)
-        print("Type: ", type(saliency_map[0][0]))
-        count_elements_gt_05 = 0
-        count_elements_gt_05 = np.sum(saliency_map > 0.5)
-        print("Numbers greater than 0.5: ", count_elements_gt_05)
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
     def get_salient_area(self, imgs, labels, stage, batch_index):
         if "vit" in self.model_name:
             target_layers = [self.model.conv_proj]
@@ -130,17 +118,6 @@ class OralSaliencyClassifierModule(LightningModule):
             grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=target)
             grayscale_cam = grayscale_cam[0, :]
             grayscale_cam = cv2.resize(grayscale_cam, (224, 224))
-
-            # save the saliency maps of the first 10 images of each batch during validation
-            if stage == "val" and index < 10 and batch_index == 0:
-                image_for_plot = image.permute(1, 2, 0).numpy()
-                fig, ax = plt.subplots()
-                ax.imshow(image_for_plot)
-                ax.imshow((grayscale_cam*255).astype('uint8'), cmap='jet', alpha=0.75)  # Overlay saliency map
-                os.makedirs(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps',
-                            exist_ok=True)
-                plt.savefig(os.path.join(f'{hydra.core.hydra_config.HydraConfig.get().runtime.output_dir}/grad_cam_maps/saliency_map_epoch_{self.current_epoch}_image_{index}.pdf'), bbox_inches='tight')
-                plt.close()
 
             _, grayscale_cam = cv2.threshold(grayscale_cam, 0.5, 1, cv2.THRESH_BINARY)
             result.append(grayscale_cam)
