@@ -5,6 +5,8 @@
 
 Github repo to improve classification performance by exploiting segment information
 
+![cent_vs_centIou](https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/5b7f4460-4a60-4f29-8c52-5de3f95970b8)
+
 ## **Install**
 
 To install the project, simply clone the repository and get the necessary dependencies:
