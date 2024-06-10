@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conference Paper Poster</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header, section, footer {
+            padding: 20px;
+            margin: 20px;
+        }
+
+        header {
+            background: #f4f4f4;
+            text-align: center;
+        }
+
+        section {
+            background: #e2e2e2;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        .affiliations {
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="centered">Improving oral cancer classification via segment-driven deep learning on photographic images</h1>
+        <h2 class="centered">Marco Parola, Edoardo Malaspina, Mario G.C.A. Cimino</h2>
+        <p class="centered affiliations">Dept. of Information Engineering, University of Pisa, Italy</p>
+    </header>
+    <section>
+        <h3>Abstract</h3>
+        <p>Oral cancer is a major health problem requiring accurate healthcare support systems, and Deep learning (DL) based medical imaging has proven to be an effective solution. This work addresses the oral cancer classification task by employing different convolutional architectures. Our goal is to improve downstream classification tasks by incorporating segmentation information. In our experiments, we compare traditional classification training with two segment-driven strategies. The first approach involves training a dedicated neural network (NN) to predict masks, which are then used to classify masked images to hide unuseful information. In addition to the common hard-masking approach, we adopt an alternative relying on soft-masks to weigh the contribution of each pixel to the final classification. Then, we propose a second approach involving the training of a NN via CrossEntropyIoU, a loss function composed of the CrossEntropy for training a classifier, and the Intersection over Union measuring the mismatch between the activation map and the mask.  Experiments show implementing segment-driven strategies enhances the accuracy and the training speed using both convolutional and transformer architectures. We evaluate each approach on a dataset acquired by the medical equipment of the team.</p>
+
+        <div class="centered">
+            <img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/5b7f4460-4a60-4f29-8c52-5de3f95970b8">
+        </div>
+    </section>
+
+    <footer>
+        <p>Contact Information: marco.parola@ing.unipi.it, e.malaspina@studenti.unipi.it</p>
+    </footer>
+</body>
+</html>
