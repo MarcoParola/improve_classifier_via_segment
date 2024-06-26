@@ -1,80 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conference Paper Poster</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 70%; /* 100% - 40% margin (20% on each side) */
-            
-        }
-
-        header, section, footer {
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        header {
-            background: #f4f4f4;
-            text-align: center;
-        }
-
-        section {
-            background: #e2e2e2;
-        }
-
-        footer {
-            text-align: center;
-        }
-
-        .centered {
-            text-align: center;
-        }
-
-        .affiliations {
-            font-style: italic;
-        }
-
-        h1, h2 {
-            margin: 20px 0;
-        }
-
-        img {
-            margin: 10px 0;
-        }
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="description" content="DESCRIPTION META TAG">
+  <meta property="og:title" content="SOCIAL MEDIA TITLE TAG"/>
+  <meta property="og:description" content="SOCIAL MEDIA DESCRIPTION TAG TAG"/>
+  <meta property="og:url" content="URL OF THE WEBSITE"/>
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/image/your_banner_image.png" />
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
 
 
-    </style>
+  <meta name="twitter:title" content="TWITTER BANNER TITLE META TAG">
+  <meta name="twitter:description" content="TWITTER BANNER DESCRIPTION META TAG">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/images/your_twitter_banner_image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="keywords" content="KEYWORDS SHOULD BE PLACED HERE">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>Academic Project Page</title>
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
 </head>
 <body>
-    <div class="container">
-    <header>
-        <h1 class="centered">Improving oral cancer classification via segment-driven deep learning on photographic images</h1>
-        <h2 class="centered">Marco Parola, Edoardo Malaspina, Mario G.C.A. Cimino</h2>
-        <p class="centered affiliations">Dept. of Information Engineering, University of Pisa, Italy</p>
-    </header>
-    <section>
-        <h3>Abstract</h3>
-        <p>Oral cancer is a major health problem requiring accurate healthcare support systems, and Deep learning (DL) based medical imaging has proven to be an effective solution. This work addresses the oral cancer classification task by employing different convolutional architectures. Our goal is to improve downstream classification tasks by incorporating segmentation information. In our experiments, we compare traditional classification training with two segment-driven strategies. The first approach involves training a dedicated neural network (NN) to predict masks, which are then used to classify masked images to hide unuseful information. In addition to the common hard-masking approach, we adopt an alternative relying on soft-masks to weigh the contribution of each pixel to the final classification. Then, we propose a second approach involving the training of a NN via CrossEntropyIoU, a loss function composed of the CrossEntropy for training a classifier, and the Intersection over Union measuring the mismatch between the activation map and the mask.  Experiments show implementing segment-driven strategies enhances the accuracy and the training speed using both convolutional and transformer architectures. We evaluate each approach on a dataset acquired by the medical equipment of the team.</p>
 
-        <div class="centered">
-            <img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/5b7f4460-4a60-4f29-8c52-5de3f95970b8">
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Improving automated oral cancer classification via segment-driven deep learning on photographic images</h1>
+            <div class="is-size-5 publication-authors">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="https://marcoparola.github.io/" target="_blank">Marco Parola</a><sup>1</sup>,</span>
+                <span class="author-block">
+                <a href="SECOND AUTHOR PERSONAL LINK" target="_blank">Edoardo Malaspina</a><sup>1</sup>,</span>
+                <span class="author-block">
+                <a target="_blank">Gaetano La Mantia</a><sup>2,3,4</sup>,</span><br>
+                <a href="http://docenti.ing.unipi.it/m.cimino/" target="_blank">Mario GCA Cimino</a><sup>1</sup>,</span>
+                <span class="author-block">
+                <a target="_blank">Giusappina Campisi</a><sup>2,3,4</sup>,</span>
+                <span class="author-block">
+                <a target="_blank">Olga Di Fede</a><sup>2,3,4</sup>,</span>
+                </div>
+
+                  <div class="is-size-5 publication-authors">
+                    <span class="author-block"><small><sup>1</sup>Department of Information Engineering, University of Pisa, Italy</small></span><br>
+                    <span class="author-block"><small><sup>2</sup>Department Di.Chir.On.S, University of Palermo, Italy</small></span><br>
+                    <span class="author-block"><small><sup>3</sup>University Hospital Palermo, Italy</small></span><br>
+                    <span class="author-block"><small><sup>4</sup>University of Messina, Italy</small></span><br>
+                    <a><span href="https://2024.ieeemlsp.org/" class="author-block"> <b>IEEE International Workshop on Machine Learning for Signal Processing (MLSP) 2024</b></span></a>
+
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                         <!-- Arxiv PDF link -->
+                      <span class="link-block">
+                        <a href="https://arxiv.org/pdf/<ARXIV PAPER ID>.pdf" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+
+
+                  <!-- Github link -->
+                  <span class="link-block">
+                    <a href="https://github.com/MarcoParola/improve_classifier_via_segment" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/<ARXIV PAPER ID>" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+            </div>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <footer>
-        <p>Contact Information: marco.parola@ing.unipi.it, e.malaspina@studenti.unipi.it</p>
-    </footer>
+
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Oral cancer is a major health problem requiring accurate healthcare support systems, and Deep learning (DL) based medical imaging has proven to be an effective solution. This work addresses the oral cancer classification task by employing different convolutional architectures. Our goal is to improve downstream classification tasks by incorporating segmentation information. In our experiments, we compare traditional classification training with two segment-driven strategies. The first approach involves training a dedicated neural network (NN) to predict masks, which are then used to classify masked images to hide unuseful information. In addition to the common hard-masking approach, we adopt an alternative relying on soft-masks to weigh the contribution of each pixel to the final classification. Then, we propose a second approach involving the training of a NN via CrossEntropyIoU, a loss function composed of the CrossEntropy for training a classifier, and the Intersection over Union measuring the mismatch between the activation map and the mask.  Experiments show implementing segment-driven strategies enhances the accuracy and the training speed using both convolutional and transformer architectures. We evaluate each approach on a dataset acquired by the medical equipment of the team.          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+
+<!-- Image carousel -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container"><center>
+      <img src="https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/5b7f4460-4a60-4f29-8c52-5de3f95970b8">
+      </center>
+  </div>
 </div>
-</body>
-</html>
+</section>
+<!-- End image carousel -->
+
+
+
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>BibTex Code Here</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Statcounter tracking code -->
+  
+<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+    <!-- End of Statcounter Code -->
+
+  </body>
+  </html>
