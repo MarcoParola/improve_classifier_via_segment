@@ -8,6 +8,35 @@ Github repo to improve classification performance by exploiting segment informat
 
 ![cent_vs_centIou](https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/5b7f4460-4a60-4f29-8c52-5de3f95970b8)
 
+Please cite the following:
+```
+@INPROCEEDINGS{11032552,
+  author={Parola, Marco and Malaspina, Edoardo and Cimino, Mario G.C.A. and La Mantia, Gaetano and Campisi, Giuseppina and Di Fede, Olga},
+  booktitle={2025 IEEE Symposium on Computational Intelligence in Image, Signal Processing and Synthetic Media Companion (CISM Companion)}, 
+  title={Improving oral cancer classification via segment-driven photographic deep learning imaging}, 
+  year={2025},
+  volume={},
+  number={},
+  pages={1-5},
+  keywords={Training;Deep learning;Image segmentation;Accuracy;Convolution;Computer architecture;Artificial neural networks;Medical services;Transformers;Cancer;Oral cancer;Segment-driven classification;Soft segmentation;Deep learning;CNNs;transformers},
+  doi={10.1109/CISMCompanion65074.2025.11032552}
+}
+
+@article{PAROLA2024102433,
+  title = {Towards explainable oral cancer recognition: Screening on imperfect images via Informed Deep Learning and Case-Based Reasoning},
+  journal = {Computerized Medical Imaging and Graphics},
+  volume = {117},
+  pages = {102433},
+  year = {2024},
+  issn = {0895-6111},
+  doi = {https://doi.org/10.1016/j.compmedimag.2024.102433},
+  url = {https://www.sciencedirect.com/science/article/pii/S0895611124001101},
+  author = {Marco Parola and Federico A. Galatolo and Gaetano {La Mantia} and Mario G.C.A. Cimino and Giuseppina Campisi and Olga {Di Fede}},
+  keywords = {Oral cancer, Oncology, Medical imaging, Case-based reasoning, Informed deep learning, Explainable artificial intelligence},
+}
+
+```
+
 ## **Install**
 
 To install the project, simply clone the repository and get the necessary dependencies:
