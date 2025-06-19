@@ -3,8 +3,8 @@
 [![license](https://img.shields.io/static/v1?label=OS&message=Linux&color=green&style=plastic)]()
 [![Python](https://img.shields.io/static/v1?label=Python&message=3.10&color=blue&style=plastic)]()
 
-Github repo to improve classification performance by exploiting segment information.
-[Here](https://marcoparola.github.io/improve_classifier_via_segment/) the project web page
+Github repo for **Improving oral cancer classification via segment-driven photographic deep learning imaging**, SSCI 2025.
+[Web page](https://marcoparola.github.io/improve_classifier_via_segment/) [Paper](https://ieeexplore.ieee.org/document/11032552)
 
 ![cent_vs_centIou](https://github.com/MarcoParola/improve_classifier_via_segment/assets/32603898/5b7f4460-4a60-4f29-8c52-5de3f95970b8)
 
